@@ -1,8 +1,8 @@
 class Matcher():
-    def __init__(self):
-        distance_limit_cm = 100           # Distance of closest approach threshold in cm
-        minimum_track_length_cm = 50 
-        min_pe = 50                       # Minimum no. photoelectrons for CRT hit
+    def __init__(self, distance_limit_cm, minimum_track_length, minimum_pe):
+        self.distance_limit_cm = 100           # Distance of closest approach threshold in cm
+        self.minimum_track_length_cm = 50 
+        self.minimum_pe = 50                   # Minimum no. photoelectrons for CRT hit
         print('Initialized Matcher class')
 
     def calculate_dca(self, crthit): 
@@ -13,6 +13,8 @@ class Matcher():
 
     def get_track_direction(self, track):
         # What's the input here? How do we load a track into this?
+        pass
 
     def match_crt_hits(self, track):
         # Loop over CRT hits, calculate DCA for each, determine matches
+        pass
