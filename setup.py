@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-VER = "0.1.0"
+VER = "0.1.1"
 
 setup(
     name="matcha",
