@@ -39,7 +39,7 @@ class CRTHit:
     -------
     TODO INSERT
     """
-    def __init__(self, id, feb_id=-1, pesmap={}, total_pe=0, t0=0, t1=0, 
+    def __init__(self, id, feb_id=-1, pesmap={}, total_pe=0, t0_sec=0, t0_ns=0, t1=0, 
                  x_position=0, x_error=0, y_position=0, y_error=0, z_position=0, z_error=0, 
                  plane=-1, tagger=''):
         """
@@ -53,7 +53,8 @@ class CRTHit:
         self._feb_id = feb_id
         self._pesmap = pesmap
         self._total_pe = total_pe
-        self._t0 = t0
+        self._t0_sec = t0_sec
+        self._t0_ns  = t0_ns
         self._t1 = t1
         self._x_position = x_position
         self._x_error    = x_error
@@ -75,8 +76,10 @@ class CRTHit:
         return self._pesmap
     def get_total_pe(self):
         return self._total_pe
-    def get_t0(self):
-        return self._t0
+    def get_t0_sec(self):
+        return self._t0_sec
+    def get_t0_ns(self):
+        return self._t0_ns
     def get_t1(self):
         return self._t1
     def get_x_position(self):
@@ -105,8 +108,10 @@ class CRTHit:
         self._pesmap = pesmap
     def set_total_pe(self, total_pe):
         self._total_pe = total_pe
-    def set_t0(self, t0):
-        self._t0 = t0
+    def set_t0_sec(self, t0_sec):
+        self._t0_sec = t0_sec
+    def set_t0_ns(self, t0_ns):
+        self._t0_ns = t0_ns
     def set_t1(self, t1):
         self._t1 = t1
     def set_x_position(self, x_position):
