@@ -67,7 +67,7 @@ class CRTHit:
         return self._total_pe
     @total_pe.setter
     def total_pe(self, value):
-        self._total_pe = total_pe
+        self._total_pe = value
 
     @property 
     def t0_sec(self):
