@@ -29,7 +29,7 @@ class Track:
     """
     # TODO What does "rescaled ADC units mean? (from Particle class)
     def __init__(self, id, start_x=0, start_y=0, start_z=0, 
-                 end_x, end_y, end_z=0,
+                 end_x=0, end_y=0, end_z=0,
                  points=[], depositions=[]):
         self._id = id
         self._start_x = start_x
