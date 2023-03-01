@@ -13,6 +13,11 @@ setup(
     url="https://github.com/andrewmogan/matcha",
     packages=find_packages(where="src"), 
     package_dir={"":"src"},
-    install_requires=[],
+    install_requires=['scikit-learn'],
     python_requires='>=3.6',
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ]
 )
