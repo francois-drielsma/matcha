@@ -1,3 +1,5 @@
+from sklearn.decomposition import PCA
+
 class Track:
     """
     Class for storing TPC track information. The stored tracks are
@@ -25,7 +27,11 @@ class Track:
         List of energy deposition values for each point in rescaled ADC units. Default: []
     Methods
     -------
-    TODO INSERT
+    get_track_endpoints(points, depositions, radius=20):
+        Calculates the start/end points of the track using local charge
+        density to guess at the Bragg peak.
+        Return: list of two numpy arrays of shape (3,) containing the start
+        and end point, respectively.
     """
     # TODO What does "rescaled ADC units mean? (from Particle class)
     def __init__(self, id, start_x=0, start_y=0, start_z=0, 
@@ -105,6 +111,52 @@ class Track:
     @depositions.setter
     def depositions(self, value):
         self._depositions = value
+
+    def get_track_direction(self, track):
+        # What's the input here? How do we load a track into this?
+        pass
+
+    def get_track_endpoints(points, depositions, radius=20):
+        """
+        Calculates the start/end points of the track using local charge
+        density to guess at the Bragg peak.
+
+        Parameters
+        ----------
+        points : array_like, shape (n_points, 3)
+            The 3D space points of the track.
+        depositions : array_like, shape (n_points,)
+            The charge depositions corresponding to the points.
+        radius : int, optional
+            Radius (in voxels) for local charge density calculation.
+
+        Return
+        ------
+        A list with two numpy arrays of shape (3,) containing the start
+        and end point (respectively).
+        """
+        def get_local_density(candidates, points, depositions, radius):
+            local_density = []
+            for candidate in candidates:
+                mask = cdist([candidate], points) < radius
+                if np.sum(mask) > 10:
+                    local_projection = pca.fit_transform(points[mask])
+                    local_candidates = points[mask][np.argmin(local_projection[:, 0])], \
+                                        points[mask][np.argmax(local_projection[:, 0])]
+                    candidate = local_candidates[np.argmin(cdist([candidate], local_candidates))]
+                    mask = cdist([candidate], points) < radius
+                local_density.append(np.sum(depositions[mask]))
+            return local_density
+
+        pca = PCA(n_components=2)
+        projection = pca.fit_transform(points)
+        candidates = [points[np.argmin(projection[:, 0])], points[np.argmax(projection[:, 0])]]
+        local_density = get_local_density(candidates, points, depositions, radius)
+        if np.argmin(local_density) == 1:
+            local_density.reverse()
+            candidates.reverse()
+
+        return candidates
 
 
 
