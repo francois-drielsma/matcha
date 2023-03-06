@@ -1,5 +1,8 @@
+import sys
 from track import Track
 from crthit import CRTHit
+
+MAX_FLOAT = sys.float_info.max
 
 class MatchCandidate:
     """
@@ -13,7 +16,7 @@ class MatchCandidate:
         The Track object in the candidate match.
     crthit : matcha.CRTHit
         The CRTHit object in the candidate match.
-    closest_approach_distance : float, optional
+    distance_of_closest_approach : float, optional
         The distance of closest approach between the Track and CRTHit objects
         in cm. Default: 0.
 
@@ -21,11 +24,11 @@ class MatchCandidate:
     -------
     None
     """
-    def __init__(self, index, track, crthit, closest_approach_distance=0):
+    def __init__(self, index, track, crthit, distance_of_closest_approach=MAX_FLOAT):
         self._index  = index
         self._track  = track
         self._crthit = crthit
-        self._closest_approach_distance = closest_approach_distance
+        self._distance_of_closest_approach = distance_of_closest_approach
 
     @property
     def track(self):
@@ -42,11 +45,11 @@ class MatchCandidate:
         self._crthit = value
 
     @property
-    def closest_approach_distance(self):
-        return self._closest_approach_distance
-    @closest_approach_distance.setter
-    def closest_approach_distance(self, value):
-        self._closest_approach_distance = value
+    def distance_of_closest_approach(self):
+        return self._distance_of_closest_approach
+    @distance_of_closest_approach.setter
+    def distance_of_closest_approach(self, value):
+        self._distance_of_closest_approach = value
 
 class MatchMaker:
     """
@@ -74,7 +77,7 @@ class MatchMaker:
 
     Methods
     -------
-    calculate_closest_approach_distance(track, crthit): 
+    calculate_distance_of_closest_approach(track, crthit): 
         Calculates distance of closest approach between a back-projected
         track and the CRT hit coordinates.
         Return: float
@@ -125,7 +128,13 @@ class MatchMaker:
     def minimum_pe(self, value):
         self._minimum_pe = value
 
-    def calculate_closest_approach_distance(self, track, crthit): 
+    @classmethod
+    def calculate_distance_of_closest_approach(cls, track, crthit): 
+        track_start_x = track.start_x
+        track_start_y = track.start_y
+        track_start_z = track.start_z
+
+        track_direction_vector = track.get_track_angles()
         # Calculate distance of closest approach.
         # Requires shifting the track by -v*t and extrapolating to the 
         # CRT hit position.
@@ -134,11 +143,12 @@ class MatchMaker:
     def get_crt_tpc_matches(self, tracks, crthits, approach_distance_threshold):
         # Loop over CRT hits, calculate DCA for each, determine matches
         # Return list of MatchCandidates
-        pass
+        match_candidates = []
+        return match_candidates
 
-    def get_best_match():
+    def get_best_match(self, match_candidates):
         # Determine which match is best based on minimum distance of closest 
         # approach
-        pass
+        return min(candidate.distance_of_closest_approach for candidate in match_candidates)
 
 
