@@ -52,7 +52,6 @@ class CRTHit:
         self._z_error = z_error
         self._plane  = plane
         self._tagger = tagger
-        print('Initialized CRTHit class')
 
     ### Getters and setters ###
     @property
