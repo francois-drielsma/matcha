@@ -1,4 +1,26 @@
 from sklearn.decomposition import PCA
+from enum import Enum
+
+# TODO list:
+#   - Insert actual drift velocity
+#   - Which x-positions correspond to EE and WW TPCs? 
+#   - What are the drift directions of each TPC? (+1 or -1)
+#   - Should there be a subclass for TrackEndPoint? (drift direction and shift)
+#   - What does "rescaled ADC units mean? (from Particle class)
+
+V_DRIFT = None
+
+class TPCRegion(Enum):
+    """
+    Class for determining which TPC or region a track endpoint lies in.
+    """
+    WestOfWW    = 0
+    InsideWW    = 1
+    InsideWE    = 2
+    BetweenTPCs = 3
+    InsideEW    = 4
+    InsideEE    = 5
+    EastOfEE    = 6
 
 class Track:
     """
@@ -9,6 +31,10 @@ class Track:
     ----------
     id : int, required
         Identifier for Track instance
+    image_id : int
+        Identifier for the detector image, or "event." Default: -1
+    interaction_id : int
+        Identifier for the parent interaction, or "vertex." Default: -1
     start_x : float
         x-position of the first track point in cm. Default: 0
     end_x : float
@@ -33,11 +59,14 @@ class Track:
         Return: list of two numpy arrays of shape (3,) containing the start
         and end point, respectively.
     """
-    # TODO What does "rescaled ADC units mean? (from Particle class)
-    def __init__(self, id, start_x=0, start_y=0, start_z=0, 
-                 end_x=0, end_y=0, end_z=0,
+    def __init__(self, id, image_id=-1, interaction_id=-1, 
+                 start_x=0, start_y=0, start_z=0, 
+                 end_x=0,   end_y=0,   end_z=0,
                  points=[], depositions=[]):
+
         self._id = id
+        self._image_id       = image_id
+        self._interaction_id = interaction_id
         self._start_x = start_x
         self._start_y = start_y
         self._start_z = start_z
@@ -46,7 +75,6 @@ class Track:
         self._end_z   = end_z
         self._points = points
         self._depositions = depositions
-        print('Initialized Track class')
 
     ### Getters and setters ###
     @property
@@ -55,6 +83,20 @@ class Track:
     @id.setter
     def id(self, value):
         self._id = value
+
+    @property
+    def image_id(self):
+        return self._image_id
+    @image_id.setter
+    def image_id(self, value):
+        self._image_id = value
+
+    @property
+    def interaction_id(self):
+        return self._interaction_id
+    @interaction_id.setter
+    def interaction_id(self, value):
+        self._interaction_id = value
 
     @property
     def start_x(self):
@@ -112,11 +154,7 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_track_direction(self, track):
-        # What's the input here? How do we load a track into this?
-        pass
-
-    def get_track_endpoints(points, depositions, radius=20):
+    def get_track_endpoints(self, points, depositions, radius=20):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -157,6 +195,71 @@ class Track:
             candidates.reverse()
 
         return candidates
+
+    def get_track_endpoint_angles(self, track_startpoint, track_endpoint):
+        pass
+
+    def endpoint_drift_direction(self, point_x):
+        """
+        Method to determine which direction to shift a point based on 
+        which TPC it resides in.
+
+        The cathode x-boundaries in cm are assumed to be [-210.215, 0, 210.215].
+
+        Parameters
+        ----------
+        point_x: float
+            x-position of the point in cm
+
+        Return
+        ------
+        int
+            +1 or -1, depending on which TPC the point is in.
+        """
+
+        # Boundary values from conversation with Tyler Boone
+        tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
+        point_region = np.digitize(point_x, tpc_x_boundaries)
+        region = TPCRegion(point_region).name
+
+        # In ICARUS, the origin is between the two TPCs. The x-values run
+        # negative-to-positive east-to-west, so a point in a west-drifting
+        # TPC will have a positive value, and vice versa. 
+        
+        # West-drifting TPCs
+        if region == 'InsideWW' or region == 'InsideEW': 
+            return 1
+        # East-drifting TPCs
+        elif region == 'InsideEE' or region == 'InsideWE': 
+            return -1
+        # Outside TPCs
+        else:
+            return None
+
+    def shift_track_point_x(self, point_x, t0):
+        """
+        Method to shift a track point along the drift direction according to
+        t0 and drift velocity.
+
+        Parameters
+        ----------
+        point_x : float
+            x-position of the point in cm
+        t0 : float
+            t0 of the track point. If the corresponding track does not cross
+            the cathode, the t0 is assumed to be the CRT hit time for the
+            purpose of shifting the track and determining whether it matches
+            the CRT hit. 
+
+        Return
+        ------
+        float
+            Value of the shifted x-position in cm.
+        """
+        
+        pass
+        #drift_direction = 
+
 
 
 
