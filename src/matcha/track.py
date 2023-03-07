@@ -6,6 +6,7 @@ from enum import Enum
 #   - What does "rescaled ADC units mean? (from Particle class)
 
 V_DRIFT = None
+TPC_X_BOUNDS = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
 
 class TPCRegion(Enum):
     """
@@ -195,23 +196,31 @@ class Track:
 
     class TrackEndPoint:
         """
-        Class for storing TPC track information. The stored tracks are
-        assumed to be muon candidates for CRT-TPC matching.
+        Class for storing and managing track endpoint information. 
+
+        The track endpoints are used in CRT-TPC matching. For each point,
+        we calculate the distance of closest approach between it and each
+        CRT hit in the image (i.e., event). This requires calculating the
+        endpoint directions based on PCA and local charge information, as
+        well as determinig the point drift direction based on which TPC
+        region it lies in. 
 
         Attributes
         ----------
+        track_id : int
+            ID of the corresponding track this point came from
         position_x : float
-            x-position of the point in cm. Default: 0
+            x-position of the point in cm. 
         position_y : float
-            y-position of the point in cm. Default: 0
+            y-position of the point in cm. 
         position_z : float
-            z-position of the point in cm. Default: 0
+            z-position of the point in cm. 
         direction_x : float
-            x-direction of the point in cm. Default: 0
+            x-direction of the point in cm. 
         direction_y : float
-            y-direction of the point in cm. Default: 0
+            y-direction of the point in cm. 
         direction_z : float
-            z-direction of the point in cm. Default: 0
+            z-direction of the point in cm. 
         drift_direction: int
             +1 or -1, depending on which TPC region the point lies in. See
             the endpoint_drift_direction() method for details.
@@ -223,27 +232,30 @@ class Track:
             Return: list of two numpy arrays of shape (3,) containing the start
             and end point, respectively.
         """
-        def __init__(self, position_x, position_y, position_z,
+        def __init__(self, track_id,
+                     position_x, position_y, position_z,
                      direction_x, direction_y, direction_z):
-            self._position_x = position_x
-            self._position_y = position_y
-            self._position_z = position_z
+            self._track_id    = track_id
+            self._position_x  = position_x
+            self._position_y  = position_y
+            self._position_z  = position_z
             self._direction_x = direction_x
             self._direction_y = direction_y
             self._direction_z = direction_z
             self._drift_direction = self.get_drift_direction(
-                    self.position_x, self.position_y, self.position_z
-            )
+                    self.position_x, self.position_y, self.position_z)
 
         def get_endpoint_angles(self, track_startpoint, track_endpoint):
             pass
 
         def get_drift_direction(self, point_x):
             """
-            Method to determine which direction to shift a point based on 
-            which TPC it resides in.
-
-            The cathode x-boundaries in cm are assumed to be [-210.215, 0, 210.215].
+            Method to determine which direction the ionization electrons from
+            a point will drift based on which TPC it resides in. In ICARUS, 
+            the origin is between the two TPCs. The x-values run negative-to-positive 
+            east-to-west, so a point in a west-drifting TPC will have a positive 
+            value, and vice versa. The region x-boundaries in cm are assumed to be
+            [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49].
 
             Parameters
             ----------
@@ -252,19 +264,15 @@ class Track:
 
             Return
             ------
-            int
-                +1 or -1, depending on which TPC the point is in.
+            int or None
+                +1 or -1 if the point is inside an active TPC volume, else None.
             """
 
             # Boundary values from conversation with Tyler Boone
-            tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
-            point_region = np.digitize(point_x, tpc_x_boundaries)
+            #tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
+            point_region = np.digitize(point_x, TPC_X_BOUNDS)
             region = TPCRegion(point_region).name
 
-            # In ICARUS, the origin is between the two TPCs. The x-values run
-            # negative-to-positive east-to-west, so a point in a west-drifting
-            # TPC will have a positive value, and vice versa. 
-            
             # West-drifting TPCs
             if region == 'InsideWW' or region == 'InsideEW': 
                 return 1
