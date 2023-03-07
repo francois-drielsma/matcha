@@ -3,9 +3,6 @@ from enum import Enum
 
 # TODO list:
 #   - Insert actual drift velocity
-#   - Which x-positions correspond to EE and WW TPCs? 
-#   - What are the drift directions of each TPC? (+1 or -1)
-#   - Should there be a subclass for TrackEndPoint? (drift direction and shift)
 #   - What does "rescaled ADC units mean? (from Particle class)
 
 V_DRIFT = None
@@ -196,69 +193,110 @@ class Track:
 
         return candidates
 
-    def get_track_endpoint_angles(self, track_startpoint, track_endpoint):
-        pass
-
-    def endpoint_drift_direction(self, point_x):
+    class TrackEndPoint:
         """
-        Method to determine which direction to shift a point based on 
-        which TPC it resides in.
+        Class for storing TPC track information. The stored tracks are
+        assumed to be muon candidates for CRT-TPC matching.
 
-        The cathode x-boundaries in cm are assumed to be [-210.215, 0, 210.215].
-
-        Parameters
+        Attributes
         ----------
-        point_x: float
-            x-position of the point in cm
-
-        Return
-        ------
-        int
-            +1 or -1, depending on which TPC the point is in.
+        position_x : float
+            x-position of the point in cm. Default: 0
+        position_y : float
+            y-position of the point in cm. Default: 0
+        position_z : float
+            z-position of the point in cm. Default: 0
+        direction_x : float
+            x-direction of the point in cm. Default: 0
+        direction_y : float
+            y-direction of the point in cm. Default: 0
+        direction_z : float
+            z-direction of the point in cm. Default: 0
+        drift_direction: int
+            +1 or -1, depending on which TPC region the point lies in. See
+            the endpoint_drift_direction() method for details.
+        Methods
+        -------
+        get_track_endpoints(points, depositions, radius=20):
+            Calculates the start/end points of the track using local charge
+            density to guess at the Bragg peak.
+            Return: list of two numpy arrays of shape (3,) containing the start
+            and end point, respectively.
         """
+        def __init__(self, position_x, position_y, position_z,
+                     direction_x, direction_y, direction_z):
+            self._position_x = position_x
+            self._position_y = position_y
+            self._position_z = position_z
+            self._direction_x = direction_x
+            self._direction_y = direction_y
+            self._direction_z = direction_z
+            self._drift_direction = self.get_drift_direction(
+                    self.position_x, self.position_y, self.position_z
+            )
 
-        # Boundary values from conversation with Tyler Boone
-        tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
-        point_region = np.digitize(point_x, tpc_x_boundaries)
-        region = TPCRegion(point_region).name
+        def get_endpoint_angles(self, track_startpoint, track_endpoint):
+            pass
 
-        # In ICARUS, the origin is between the two TPCs. The x-values run
-        # negative-to-positive east-to-west, so a point in a west-drifting
-        # TPC will have a positive value, and vice versa. 
-        
-        # West-drifting TPCs
-        if region == 'InsideWW' or region == 'InsideEW': 
-            return 1
-        # East-drifting TPCs
-        elif region == 'InsideEE' or region == 'InsideWE': 
-            return -1
-        # Outside TPCs
-        else:
-            return None
+        def get_drift_direction(self, point_x):
+            """
+            Method to determine which direction to shift a point based on 
+            which TPC it resides in.
 
-    def shift_track_point_x(self, point_x, t0):
-        """
-        Method to shift a track point along the drift direction according to
-        t0 and drift velocity.
+            The cathode x-boundaries in cm are assumed to be [-210.215, 0, 210.215].
 
-        Parameters
-        ----------
-        point_x : float
-            x-position of the point in cm
-        t0 : float
-            t0 of the track point. If the corresponding track does not cross
-            the cathode, the t0 is assumed to be the CRT hit time for the
-            purpose of shifting the track and determining whether it matches
-            the CRT hit. 
+            Parameters
+            ----------
+            point_x: float
+                x-position of the point in cm
 
-        Return
-        ------
-        float
-            Value of the shifted x-position in cm.
-        """
-        
-        pass
-        #drift_direction = 
+            Return
+            ------
+            int
+                +1 or -1, depending on which TPC the point is in.
+            """
+
+            # Boundary values from conversation with Tyler Boone
+            tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
+            point_region = np.digitize(point_x, tpc_x_boundaries)
+            region = TPCRegion(point_region).name
+
+            # In ICARUS, the origin is between the two TPCs. The x-values run
+            # negative-to-positive east-to-west, so a point in a west-drifting
+            # TPC will have a positive value, and vice versa. 
+            
+            # West-drifting TPCs
+            if region == 'InsideWW' or region == 'InsideEW': 
+                return 1
+            # East-drifting TPCs
+            elif region == 'InsideEE' or region == 'InsideWE': 
+                return -1
+            # Outside TPCs
+            else:
+                return None
+
+        #def shift_position_x(self, position_x, t0, drift_direction):
+        def shift_position_x(self, t0, drift_velocity=V_DRIFT):
+            """
+            Method to shift the track endpoint x-position  along the drift
+            direction according to t0 and drift velocity.
+
+            Parameters
+            ----------
+            t0 : float
+                t0 of the track point. If the corresponding track does not cross
+                the cathode, the t0 is assumed to be the CRT hit time for the
+                purpose of shifting the track and determining whether it matches
+                the CRT hit. 
+            drift_velocity : float
+                Drift velocity value in cm/microseconds. 
+            """
+            position_x      = self.position_x
+            drift_direction = self.drift_direction
+
+            shifted_x = position_x + drift_velocity * t0 * drift_direction
+            
+            self.position_x = shifted_x
 
 
 
