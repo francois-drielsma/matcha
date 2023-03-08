@@ -2,23 +2,7 @@ from sklearn.decomposition import PCA
 from enum import Enum
 
 # TODO list:
-#   - Insert actual drift velocity
 #   - What does "rescaled ADC units mean? (from Particle class)
-
-V_DRIFT = None
-TPC_X_BOUNDS = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
-
-class TPCRegion(Enum):
-    """
-    Class for determining which TPC or region a track endpoint lies in.
-    """
-    WestOfWW    = 0
-    InsideWW    = 1
-    InsideWE    = 2
-    BetweenTPCs = 3
-    InsideEW    = 4
-    InsideEE    = 5
-    EastOfEE    = 6
 
 class Track:
     """
@@ -196,6 +180,55 @@ class Track:
             candidates.reverse()
 
         return candidates
+
+    def get_track_angles(points, depositions, vertex, radius=20):
+        """
+        Calculates the approximate angle of the track using a local
+        PCA about each endpoint.
+
+        Parameters
+        ----------
+        points: The 3D space points of the track
+        depositions: The charge depositions corresponding to the points.
+        vertex: The vertex of the parent interaction.
+        radius: Radius used for local primary direction calculation.
+
+        Return
+        ------
+        The primary components of the track (starting at both ends),
+        a bool flagging the first endpoint as having the lowest local
+        charge density, and the calculated endpoints.
+        """
+        pca = PCA(n_components=2)
+        try:
+            endpoints = get_endpoints(points, depositions, radius)
+            ret = list()
+            centroid = list()
+            p0_localQ_lowest = True
+            for p in endpoints:
+                mask = cdist([p], points)[0] < radius
+                if np.sum(mask) > 2:
+                    centroid.append(np.mean(points[mask], axis=0))
+                    primary = pca.fit(points[mask]).components_[0]
+                    ret.append(primary / np.linalg.norm(primary))
+                else:
+                    ret.append(np.array([-9999.0, -9999.0, -9999.0]))
+                    centroid.append(np.array([0,0,0]))
+            if vertex[0] > 0:
+                if np.argmin(cdist([vertex], endpoints)[0]) == 1:
+                    endpoints.reverse()
+                    ret.reverse()
+                    centroid.reverse()
+                    p0_localQ_lowest = False
+                for ri in range(len(ret)):
+                    v = centroid[ri]
+                    cosine = (np.dot((v-vertex), ret[ri])
+                              / (np.linalg.norm(v-vertex)
+                                 * np.linalg.norm(ret[ri])))
+                    if cosine < -0.5: ret[ri] = -1*ret[ri]
+            return ret, p0_localQ_lowest, endpoints
+        except ValueError:
+            return None, None, None
 
 
 
