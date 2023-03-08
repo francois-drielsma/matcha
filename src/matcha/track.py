@@ -61,6 +61,9 @@ class Track:
         self._points = points
         self._depositions = depositions
 
+    def __repr__(self):
+        return f"Track({self.id}, {self.image_id}, {self.interaction_id}, {self.start_x}, {self.start_y}, {self.start_z}, {self.end_x}, {self.start_y}, {self.start_z}, {self.points}, {self.depositions})"
+
     ### Getters and setters ###
     @property
     def id(self):
@@ -139,7 +142,8 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_track_endpoints(self, points, depositions, radius=20):
+    #def get_track_endpoints(self, points, depositions, radius=20):
+    def get_track_endpoints(self, radius=20):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -158,6 +162,8 @@ class Track:
         A list with two numpy arrays of shape (3,) containing the start
         and end point (respectively).
         """
+        points = self.points
+        depositions = self.depositions 
         def get_local_density(candidates, points, depositions, radius):
             local_density = []
             for candidate in candidates:
@@ -178,6 +184,9 @@ class Track:
         if np.argmin(local_density) == 1:
             local_density.reverse()
             candidates.reverse()
+
+        print('Candidates len {} and type {}'.format(len(candidates), type(candidates)))
+        print('Candidates:\n', candidates)
 
         return candidates
 
@@ -200,35 +209,20 @@ class Track:
         charge density, and the calculated endpoints.
         """
         pca = PCA(n_components=2)
-        try:
-            endpoints = get_endpoints(points, depositions, radius)
-            ret = list()
-            centroid = list()
-            p0_localQ_lowest = True
-            for p in endpoints:
-                mask = cdist([p], points)[0] < radius
-                if np.sum(mask) > 2:
-                    centroid.append(np.mean(points[mask], axis=0))
-                    primary = pca.fit(points[mask]).components_[0]
-                    ret.append(primary / np.linalg.norm(primary))
-                else:
-                    ret.append(np.array([-9999.0, -9999.0, -9999.0]))
-                    centroid.append(np.array([0,0,0]))
-            if vertex[0] > 0:
-                if np.argmin(cdist([vertex], endpoints)[0]) == 1:
-                    endpoints.reverse()
-                    ret.reverse()
-                    centroid.reverse()
-                    p0_localQ_lowest = False
-                for ri in range(len(ret)):
-                    v = centroid[ri]
-                    cosine = (np.dot((v-vertex), ret[ri])
-                              / (np.linalg.norm(v-vertex)
-                                 * np.linalg.norm(ret[ri])))
-                    if cosine < -0.5: ret[ri] = -1*ret[ri]
-            return ret, p0_localQ_lowest, endpoints
-        except ValueError:
-            return None, None, None
+        endpoints = get_endpoints(points, depositions, radius)
+        ret = list()
+        centroid = list()
+        p0_localQ_lowest = True
+        for p in endpoints:
+            mask = cdist([p], points)[0] < radius
+            if np.sum(mask) > 2:
+                centroid.append(np.mean(points[mask], axis=0))
+                primary = pca.fit(points[mask]).components_[0]
+                ret.append(primary / np.linalg.norm(primary))
+            else:
+                ret.append(np.array([-9999.0, -9999.0, -9999.0]))
+                centroid.append(np.array([0,0,0]))
+        return ret, p0_localQ_lowest, endpoints
 
 
 
