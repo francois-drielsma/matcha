@@ -162,8 +162,14 @@ class Track:
         A list with two numpy arrays of shape (3,) containing the start
         and end point (respectively).
         """
+        if not self.points:
+            raise ValueError('Track points attribute must be filled before calling get_track_endpoints')
+        if not self.depositions:
+            raise ValueError('Track depositions attribute must be filled before calling get_track_endpoints')
+
         points = self.points
         depositions = self.depositions 
+
         def get_local_density(candidates, points, depositions, radius):
             local_density = []
             for candidate in candidates:
@@ -199,7 +205,6 @@ class Track:
         ----------
         points: The 3D space points of the track
         depositions: The charge depositions corresponding to the points.
-        vertex: The vertex of the parent interaction.
         radius: Radius used for local primary direction calculation.
 
         Return
