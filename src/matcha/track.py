@@ -190,7 +190,7 @@ class Track:
 
         return candidates
 
-    def get_track_angles(points, depositions, vertex, radius=20):
+    def get_track_angles(points, depositions, radius=20):
         """
         Calculates the approximate angle of the track using a local
         PCA about each endpoint.
