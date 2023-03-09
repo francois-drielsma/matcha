@@ -1,4 +1,6 @@
+import numpy as np
 from sklearn.decomposition import PCA
+from scipy.spatial.distance import cdist
 from enum import Enum
 
 # TODO list:
@@ -162,37 +164,54 @@ class Track:
         A list with two numpy arrays of shape (3,) containing the start
         and end point (respectively).
         """
-        if not self.points:
+        if not self.points.any():
             raise ValueError('Track points attribute must be filled before calling get_track_endpoints')
-        if not self.depositions:
+        if not self.depositions.any():
             raise ValueError('Track depositions attribute must be filled before calling get_track_endpoints')
 
         points = self.points
         depositions = self.depositions 
 
+        print('points shape BEFORE local density:', points.shape)
+        print('depositions shape:', depositions.shape)
+
         def get_local_density(candidates, points, depositions, radius):
             local_density = []
+            print('point shape IN local density:', points.shape)
             for candidate in candidates:
+                print('initial candidate', candidate)
                 mask = cdist([candidate], points) < radius
+                print('Mask shape before reshape:', mask.shape)
+                # The above line gives mask an extra axis which must be 
+                # removed in order to index 'points' properly
+                #mask = mask.reshape(-1)
+                mask = mask.flatten()
+                print('Mask shape after reshape:', mask.shape)
+                print('mask shape IN local density:', mask.shape)
                 if np.sum(mask) > 10:
                     local_projection = pca.fit_transform(points[mask])
                     local_candidates = points[mask][np.argmin(local_projection[:, 0])], \
-                                        points[mask][np.argmax(local_projection[:, 0])]
+                                       points[mask][np.argmax(local_projection[:, 0])]
+                    print('local candidates:', local_candidates)
                     candidate = local_candidates[np.argmin(cdist([candidate], local_candidates))]
+                    print('Revised candidate', candidate)
                     mask = cdist([candidate], points) < radius
                 local_density.append(np.sum(depositions[mask]))
             return local_density
 
         pca = PCA(n_components=2)
         projection = pca.fit_transform(points)
+        print('projection type:', type(projection))
+        print('projection dtype:', projection.dtype)
         candidates = [points[np.argmin(projection[:, 0])], points[np.argmax(projection[:, 0])]]
+        #candidates = np.array(points[np.argmin(projection[:, 0])], points[np.argmax(projection[:, 0])])
+        print('candidates type:', type(candidates))
+        print('candidates:\n', candidates)
+        candidates = np.array(candidates)
         local_density = get_local_density(candidates, points, depositions, radius)
         if np.argmin(local_density) == 1:
             local_density.reverse()
             candidates.reverse()
-
-        print('Candidates len {} and type {}'.format(len(candidates), type(candidates)))
-        print('Candidates:\n', candidates)
 
         return candidates
 
