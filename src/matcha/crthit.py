@@ -144,5 +144,38 @@ class CRTHit:
     @tagger.setter
     def tagger(self, value):
         self._tagger = value
+
+    def GetTimeInMicroseconds(self, trigger_timestamp=None, isdata=False):
+        """
+        CRTHit class method to retreive the "actual" time in microseconds.
+
+        This function is essentially a python port of the GetCRTTime function 
+        in the CRTUtils of icaruscode.
+
+        Parameters
+        ----------
+        trigger_timestamp : float, optional
+            Timestamp of the trigger. Needed for data events but not MC, where 
+            we assume a timestamp of 0. Default: None
+        isdata : bool, optional
+            Boolean flag for running on data as opposed to MC. Default: False
+        """
+        import math
+        crtTime = math.inf
+
+        if isdata:
+            if self.fTSMode == 1:
+                crtTime = int(self.ts1_ns) * 1e-3 
+            else:
+                crtTime = float(self.ts0_ns - (trigger_timestamp%1_000_000_000))/1e3
+                if crtTime < -0.5e6:
+                    crtTime += 1e6
+                elif crtTime >= 0.5e6:
+                    crtTime -= 1e6
+        else:
+            crtTime = self.ts0_ns/1e3
+
+        return crtTime
+
     
 
