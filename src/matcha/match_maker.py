@@ -32,6 +32,7 @@ def calculate_distance_of_closest_approach(track_point, crthit):
         return numerator/denominator;
     """
     dca = 0
+    crthit_time = crthit.GetTimeInMicroseconds()
     # Shift track point by -v*t 
     track_point.shift_direction_x(crthit.t0)
     # Find some fancy linear algebra to get the DCA
