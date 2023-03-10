@@ -1,5 +1,8 @@
+import numpy as np
+
 V_DRIFT = None
 TPC_X_BOUNDS = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
+from enum import Enum
 
 class TPCRegion(Enum):
     """

@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
-from enum import Enum
+from .track_point import TrackPoint
 
 # TODO list:
 #   - What does "rescaled ADC units mean? (from Particle class)
@@ -177,7 +177,7 @@ class Track:
                     local_candidates = points[mask][np.argmin(local_projection[:, 0])], \
                                        points[mask][np.argmax(local_projection[:, 0])]
                     candidate = local_candidates[np.argmin(cdist([candidate], local_candidates))]
-                    mask = cdist([candidate], points) < radius
+                    mask = cdist([candidate], points)[0] < radius
                 local_density.append(np.sum(depositions[mask]))
             return local_density
 
@@ -196,7 +196,7 @@ class Track:
                 # of greatest variance, i.e., a direction vector
                 primary = pca.fit(points[mask]).components_[0]
                 directions.append(primary / np.linalg.norm(primary))
-            return direction[0], directions[1]
+            return directions[0], directions[1]
 
         points = self.points
         depositions = self.depositions
@@ -204,7 +204,7 @@ class Track:
         projection = pca.fit_transform(points)
         candidates = np.array([points[np.argmin(projection[:,0])], 
                                points[np.argmax(projection[:,0])]])
-        local_density = get_local_density(candidates, points, radius, min_points_in_radius)
+        local_density = get_local_density(candidates, points, depositions, radius, min_points_in_radius)
 
         #for ci, candidate in enumerate(candidates):
         #    candidate = candidate.reshape(1, 3)
@@ -232,7 +232,7 @@ class Track:
         print('Final candidates:', candidates)
 
         start_point, end_point = candidates[0], candidates[1]
-        angles = get_track_point_angles(start_point, end_point, points, depositions, radius)
+        angles = get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius)
 
         start_direction, end_direction = angles[0], angles[1]
 
