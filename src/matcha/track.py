@@ -144,8 +144,123 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
+    def get_track_endpoints(self, radius=10, min_points_in_radius=10):
+        """
+        Calculates the start/end points of the track using local charge
+        density to guess at the Bragg peak.
+
+        Parameters
+        ----------
+        radius : int, optional
+            Radius (in cm) used to determine a neighborhood of points around
+            a candidate start/end point for PCA calculation. Default: 10
+        min_points_in_radius : int, optional
+            Minimum number of points in the neighborhood of a candidate 
+            start/end point in order for PCA to be performed. Default: 10
+
+        Return
+        ------
+        A list with two numpy arrays of shape (3,) containing the start
+        and end point (respectively).
+        """
+        if not self.points.any():
+            raise ValueError('Track points attribute must be filled before calling get_track_endpoints')
+        if not self.depositions.any():
+            raise ValueError('Track depositions attribute must be filled before calling get_track_endpoints')
+
+        def get_local_density(candidates, points, depositions, radius, min_points_in_radius):
+            local_density = []
+            for candidate in candidates:
+                mask = cdist([candidate], points)[0] < radius
+                if np.sum(mask) > min_points_in_radius:
+                    local_projection = pca.fit_transform(points[mask])
+                    local_candidates = points[mask][np.argmin(local_projection[:, 0])], \
+                                       points[mask][np.argmax(local_projection[:, 0])]
+                    candidate = local_candidates[np.argmin(cdist([candidate], local_candidates))]
+                    mask = cdist([candidate], points) < radius
+                local_density.append(np.sum(depositions[mask]))
+            return local_density
+
+        def get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius):
+            pca = PCA(n_components=2)
+            #endpoints = get_endpoints(points, depositions, radius)
+            directions = []
+            #for p in endpoints:
+            for point in (start_point, end_point):
+                mask = cdist([point], points)[0] < radius
+                #if np.sum(mask) > 2:
+                if np.sum(mask) < min_points_in_radius:
+                    directions.append(np.array([-9999.0, -9999.0, -9999.0]))
+                    continue
+                # The first component of the PCA will be the direction
+                # of greatest variance, i.e., a direction vector
+                primary = pca.fit(points[mask]).components_[0]
+                directions.append(primary / np.linalg.norm(primary))
+            return direction[0], directions[1]
+
+        points = self.points
+        depositions = self.depositions
+        pca = PCA(n_components=2)
+        projection = pca.fit_transform(points)
+        candidates = np.array([points[np.argmin(projection[:,0])], 
+                               points[np.argmax(projection[:,0])]])
+        local_density = get_local_density(candidates, points, radius, min_points_in_radius)
+
+        #for ci, candidate in enumerate(candidates):
+        #    candidate = candidate.reshape(1, 3)
+        #    distances = cdist(candidate, points)
+        #    # In our case cdist returns a 2D array of shape (1, len(points)), but
+        #    # we only need the first dimension for indexing purposes
+        #    mask = distances[0] < radius
+        #    if np.sum(mask) > min_points_in_radius:
+        #        # Perform PCA in this neighborhood to get a better end point position 
+        #        local_projection = pca.fit_transform(points[mask])
+        #        local_candidates = [points[mask][np.argmin(local_projection[:,0])], 
+        #                            points[mask][np.argmax(local_projection[:,0])]]
+        #        # Replace entry in the original candidates array with the best local candidate
+        #        candidates[ci] = local_candidates[np.argmin(cdist(candidate, local_candidates)[0])]
+        #        #mask = (cdist([candidates[ci]], points)[0] < radius)
+        #        mask = (cdist([candidates[ci]], points)[0] < radius)
+        #    local_density.append(np.sum(depositions[mask]))
+        #    print('local density:', local_density)
+
+        # If the second point (assumed to be the end point) has lower charge
+        # density, flip the candidates
+        if np.argmin(local_density) == 1:
+            #local_density.reverse()
+            candidates = np.flip(candidates, axis=0)
+        print('Final candidates:', candidates)
+
+        start_point, end_point = candidates[0], candidates[1]
+        angles = get_track_point_angles(start_point, end_point, points, depositions, radius)
+
+        start_direction, end_direction = angles[0], angles[1]
+
+        # Construct TrackPoint instances to store the position and direction
+        track_start_point = TrackPoint(
+            track_id=self.id,
+            position_x=start_point[0],
+            position_y=start_point[1],
+            position_z=start_point[2],
+            direction_x=start_direction[0],
+            direction_y=start_direction[1],
+            direction_z=start_direction[2]
+        )
+
+        track_end_point = TrackPoint(
+            track_id=self.id,
+            position_x=end_point[0],
+            position_y=end_point[1],
+            position_z=end_point[2],
+            direction_x=end_direction[0],
+            direction_y=end_direction[1],
+            direction_z=end_direction[2]
+        )
+
+        return track_start_point, track_end_point
+
     #def get_track_endpoints(self, points, depositions, radius=20):
-    def get_track_endpoints(self, radius=20):
+    def get_track_endpoints_old(self, radius=20):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -215,7 +330,7 @@ class Track:
 
         return candidates
 
-    def get_track_angles(points, depositions, radius=20):
+    def get_track_angles(points, depositions, radius):
         """
         Calculates the approximate angle of the track using a local
         PCA about each endpoint.
