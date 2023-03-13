@@ -41,11 +41,10 @@ def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False):
         double numerator = (pos - start).Cross(pos - end).Mag();
         return numerator/denominator;
     """
-    print('[CALCDCA] track_point:', track_point)
     print('[CALCDCA] crt_hit:', crt_hit)
+    print('[CALCDCA] track_point:', track_point)
     print('[CALCDCA] track_point x:', track_point.position_x)
-    dca = 0
-    crt_hit_time = crt_hit.GetTimeInMicroseconds(isdata)
+    crt_hit_time = crt_hit.get_time_in_microseconds(isdata)
     # Shift track point by -v*t 
     track_point.shift_position_x(crt_hit_time, isdata)
     print('[CALCDCA] track_point shifted x:', track_point.position_x)
@@ -54,14 +53,24 @@ def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False):
     track_endpoint = np.array([track_point.position_x, track_point.position_y, track_point.position_z])
     unit_vec = np.array([track_point.direction_x, track_point.direction_y, track_point.direction_z])
     end = np.array(track_endpoint + unit_vec)
-    #denominator = np.sqrt(unit_vec[0]**2, unit_vec[1]**2, unit_vec[2]**2)
     denominator = np.linalg.norm(unit_vec)
     numerator = np.linalg.norm(np.cross((crt_hit_position - track_endpoint), (crt_hit_position - end)))
     dca = numerator/denominator
     return dca
 
 def get_best_match(match_candidates):
-    return min(candidate.distance_of_closest_approach for candidate in match_candidates)
+    #return min(candidate.distance_of_closest_approach for candidate in match_candidates)
+    min_dca = np.inf
+    best_match = None
+    for match in match_candidates:
+        this_dca = match.distance_of_closest_approach
+        if this_dca < min_dca:
+            min_dca = this_dca
+            best_match = match
+
+    print('[BESTMATCH] returning best match', best_match)
+    return best_match
+        
 
 
 
