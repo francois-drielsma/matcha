@@ -63,6 +63,11 @@ class Track:
         self._points = points
         self._depositions = depositions
 
+    def __str__(self):
+        return (f"[Track] ID {self.id}, image_id {self.image_id}, interaction_id {self.interaction_id}\n\t"
+                f"start xyz: ({self.start_x}, {self.start_y}, {self.start_z})\n\t"
+                f"end xyz: ({self.end_x}, {self.end_y}, {self.end_z})")
+
     def __repr__(self):
         return f"Track({self.id}, {self.image_id}, {self.interaction_id}, {self.start_x}, {self.start_y}, {self.start_z}, {self.end_x}, {self.start_y}, {self.start_z}, {self.points}, {self.depositions})"
 
