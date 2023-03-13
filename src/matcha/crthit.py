@@ -14,17 +14,17 @@ class CRTHit:
         Timestamp of the CRT hit start time in nanoseconds from White Rabbit. Default: 0
     t1_ns : float
         Timestamp of the CRT hit with respect to the trigger time. Default: 0
-    x_position : float 
+    position_x : float 
         Position in x-direction (cm). Default: 0
-    x_error : float
+    error_x : float
         Uncertainty in x-direction (cm). Default: 0
-    y_position : float 
+    position_y : float 
         Position in y-direction (cm). Default: 0
-    y_error : float
+    error_y : float
         Uncertainty in y-direction (cm) Default: 0
-    z_position : float 
+    position_z : float 
         Position in z-direction (cm) Default: 0
-    z_error : float
+    error_z : float
         Uncertainty in z-direction (cm) Default: 0
     plane: int, optional
         Integer identifying CRT wall (TODO Find documentation on this)
@@ -36,22 +36,28 @@ class CRTHit:
     TODO INSERT
     """
     def __init__(self, id, total_pe=0, t0_sec=0, t0_ns=0, t1_ns=0, 
-                 x_position=0, y_position=0, 
-                 z_position=0, x_error=0, y_error=0, z_error=0, 
+                 position_x=0, position_y=0, 
+                 position_z=0, error_x=0, error_y=0, error_z=0, 
                  plane=-1, tagger=''):
         self._id = id
         self._total_pe = total_pe
         self._t0_sec = t0_sec
         self._t0_ns  = t0_ns
         self._t1_ns = t1_ns
-        self._x_position = x_position
-        self._y_position = y_position
-        self._z_position = z_position
-        self._x_error = x_error
-        self._y_error = y_error
-        self._z_error = z_error
+        self._position_x = position_x
+        self._position_y = position_y
+        self._position_z = position_z
+        self._error_x = error_x
+        self._error_y = error_y
+        self._error_z = error_z
         self._plane  = plane
         self._tagger = tagger
+
+    def __str__(self):
+        return (f"[CRTHit] ID {self.id}, total_pe {self.total_pe}\n\t"
+                f"xyz: ({self.position_x}, {self.position_y}, {self.position_z})\n\t"
+                f"err: ({self.error_x}, {self.position_y}, {self.position_z})\n\t"
+                f"plane self.plane{self.plane}, tagger {self.tagger}")
 
     ### Getters and setters ###
     @property
@@ -90,46 +96,46 @@ class CRTHit:
         self._t1_ns = value
 
     @property
-    def x_position(self):
-        return self._x_position
-    @x_position.setter
-    def x_position(self, value):
-        self._x_position = value
+    def position_x(self):
+        return self._position_x
+    @position_x.setter
+    def position_x(self, value):
+        self._position_x = value
 
     @property
-    def y_position(self):
-        return self._y_position
-    @y_position.setter
-    def y_position(self, value):
-        self._y_position = value
+    def position_y(self):
+        return self._position_y
+    @position_y.setter
+    def position_y(self, value):
+        self._position_y = value
 
     @property
-    def z_position(self):
-        return self._z_position
-    @z_position.setter
-    def z_position(self, value):
-        self._z_position = value
+    def position_z(self):
+        return self._position_z
+    @position_z.setter
+    def position_z(self, value):
+        self._position_z = value
 
     @property
-    def x_error(self):
-        return self._x_error
-    @x_error.setter
-    def x_error(self, value):
-        self._x_error = value
+    def error_x(self):
+        return self._error_x
+    @error_x.setter
+    def error_x(self, value):
+        self._error_x = value
 
     @property
-    def y_error(self):
-        return self._y_error
-    @y_error.setter
-    def y_error(self, value):
-        self._y_error = value
+    def error_y(self):
+        return self._error_y
+    @error_y.setter
+    def error_y(self, value):
+        self._error_y = value
 
     @property
-    def z_error(self):
-        return self._z_error
-    @z_error.setter
-    def z_error(self, value):
-        self._z_error = value
+    def error_z(self):
+        return self._error_z
+    @error_z.setter
+    def error_z(self, value):
+        self._error_z = value
 
     @property
     def plane(self):
