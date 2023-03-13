@@ -33,6 +33,10 @@ class MatchCandidate:
         self._crthit = crthit
         self._distance_of_closest_approach = distance_of_closest_approach
 
+    def __str__(self):
+        return (f"[MATCH_CANDIDATE] Track ID {self.track.id},"
+                f"CRTHit ID {self.crthit.id}, DCA {self.distance_of_closest_approach}")
+
     @property
     def track(self):
         return self._track
