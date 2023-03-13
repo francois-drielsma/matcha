@@ -24,12 +24,11 @@ class MatchCandidate:
     -------
     None
     """
-    def __init__(self, index, track, crthit, distance_of_closest_approach=MAX_FLOAT):
-        if not isinstance(track, matcha.Track):
+    def __init__(self, track, crthit, distance_of_closest_approach=MAX_FLOAT):
+        if not isinstance(track, Track):
             raise TypeError('track parameter must be an instance of matcha.Track')
-        if not isinstance(crthit, matcha.CRTHit):
+        if not isinstance(crthit, CRTHit):
             raise TypeError('crthit parameter must be an instance of matcha.CRTHit')
-        self._index  = index
         self._track  = track
         self._crthit = crthit
         self._distance_of_closest_approach = distance_of_closest_approach
@@ -132,27 +131,27 @@ class MatchMaker:
     def minimum_pe(self, value):
         self._minimum_pe = value
 
-    @classmethod
-    def calculate_distance_of_closest_approach(cls, track, crthit): 
-        track_start_x = track.start_x
-        track_start_y = track.start_y
-        track_start_z = track.start_z
+    #@classmethod
+    #def calculate_distance_of_closest_approach(cls, track, crthit): 
+    #    track_start_x = track.start_x
+    #    track_start_y = track.start_y
+    #    track_start_z = track.start_z
 
-        track_direction_vector = track.get_track_angles()
+    #    track_direction_vector = track.get_track_angles()
         # Calculate distance of closest approach.
         # Requires shifting the track by -v*t and extrapolating to the 
         # CRT hit position.
-        pass
+    #    pass
 
-    def get_crt_tpc_matches(self, tracks, crthits, approach_distance_threshold):
+    #def get_crt_tpc_matches(self, tracks, crthits, approach_distance_threshold):
         # Loop over CRT hits, calculate DCA for each, determine matches
         # Return list of MatchCandidates
-        match_candidates = []
-        return match_candidates
+    #    match_candidates = []
+    #    return match_candidates
 
-    def get_best_match(self, match_candidates):
+    #def get_best_match(self, match_candidates):
         # Determine which match is best based on minimum distance of closest 
         # approach
-        return min(candidate.distance_of_closest_approach for candidate in match_candidates)
+    #    return min(candidate.distance_of_closest_approach for candidate in match_candidates)
 
 
