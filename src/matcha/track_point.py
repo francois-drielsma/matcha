@@ -45,6 +45,9 @@ class TrackPoint:
         y-direction of the point in cm. 
     direction_z : float
         z-direction of the point in cm. 
+    tpc_region : Enum
+        Enum class that gives the TPC drift region, i.e., EE, EW, WE, or WW.
+        Initialized in the constructor based on the TrackPoint positition_x.
     drift_direction: int
         +1 or -1, depending on which TPC region the point lies in. See
         the endpoint_drift_direction() method for details.
@@ -64,7 +67,14 @@ class TrackPoint:
         self._direction_x = direction_x
         self._direction_y = direction_y
         self._direction_z = direction_z
-        self._drift_direction = self._get_drift_direction(self.position_x)
+        self._tpc_region  = self._get_tpc_region(self.position_x)
+        self._drift_direction = self._get_drift_direction(self.tpc_region)
+
+    def __str__(self):
+        return (f"[TrackPoint]: track_id {self.track_id}\n\t"
+                f"xyz: ({self.position_x}, {self.position_y}, {self.position_z})\n\t"
+                f"dir: ({self.direction_x}, {self.direction_y}, {self.direction_z})\n\t"
+                f"TPC region: {self.tpc_region}, drift direction: {self.drift_direction}")
 
     ### Getters and setters ###
     @property
@@ -123,7 +133,21 @@ class TrackPoint:
     def drift_direction(self, value):
         self._drift_direction = value
 
-    def _get_drift_direction(self, point_x):
+    @property
+    def tpc_region(self):
+        return self._tpc_region
+    @tpc_region.setter
+    def tpc_region(self, value):
+        self._tpc_region = value
+
+    def _get_tpc_region(self, point_x):
+        point_region = np.digitize(point_x, TPC_X_BOUNDS)
+        #region = TPCRegion(point_region).name
+        region = TPCRegion(point_region)
+        print('[GETREGION] region', region)
+        return region
+
+    def _get_drift_direction(self, tpc_region):
         """
         Method to determine which direction the ionization electrons from
         a point will drift based on which TPC it resides in. In ICARUS, 
@@ -134,8 +158,8 @@ class TrackPoint:
 
         Parameters
         ----------
-        point_x: float
-            x-position of the point in cm
+        tpc_region: Enum
+            TPC region in which the point lies. Determined from _get_tpc_region
 
         Return
         ------
@@ -143,22 +167,23 @@ class TrackPoint:
             +1 or -1 if the point is inside an active TPC volume, else None.
         """
 
-        # Boundary values from conversation with Tyler Boone
-        #tpc_x_boundaries = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
-        point_region = np.digitize(point_x, TPC_X_BOUNDS)
-        region = TPCRegion(point_region).name
-
+        print('[GETDRIFT] tpc_region', tpc_region)
+        region_name = tpc_region.name
+        print('region_name = ', region_name)
         # West-drifting TPCs
-        if region == 'WW' or region == 'EW': 
+        if region_name == 'WW' or region_name == 'EW': 
+            print('[DRIFTDIRETION] Positive drift')
             return 1
         # East-drifting TPCs
-        elif region == 'EE' or region == 'WE': 
+        elif region_name == 'EE' or region_name == 'WE': 
+            print('[DRIFTDIRETION] Negative drift')
             return -1
         # Outside TPCs
         else:
+            print('[DRIFTDIRETION] None')
             return None
 
-    def shift_position_x(self, t0, drift_velocity=V_DRIFT):
+    def shift_position_x(self, t0, drift_velocity=V_DRIFT, isdata=False):
         """
         Method to shift the track endpoint x-position  along the drift
         direction according to t0 and drift velocity.
@@ -173,6 +198,7 @@ class TrackPoint:
         drift_velocity : float
             Drift velocity value in cm/microseconds. 
         """
+        global V_DRIFT
         if isdata: V_DRIFT = 1.57565
         position_x      = self.position_x
         drift_direction = self.drift_direction
