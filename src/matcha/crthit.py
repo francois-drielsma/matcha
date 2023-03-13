@@ -151,7 +151,7 @@ class CRTHit:
     def tagger(self, value):
         self._tagger = value
 
-    def GetTimeInMicroseconds(self, trigger_timestamp=None, isdata=False):
+    def get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
         """
         CRTHit class method to retreive the "actual" time in microseconds.
 
