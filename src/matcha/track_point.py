@@ -1,8 +1,8 @@
 import numpy as np
 
 # TODO Check units: should be cm/microsecond
-V_DRIFT = 1.571 # MC 
-#V_DRIFT = 1.57565 # DATA
+V_DRIFT = 0.1571 # MC 
+#V_DRIFT = 0.157565 # DATA
 TPC_X_BOUNDS = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
 from enum import Enum
 
@@ -199,7 +199,7 @@ class TrackPoint:
             Drift velocity value in cm/microseconds. 
         """
         global V_DRIFT
-        if isdata: V_DRIFT = 1.57565
+        if isdata: V_DRIFT = 0.157565
         position_x      = self.position_x
         drift_direction = self.drift_direction
 
