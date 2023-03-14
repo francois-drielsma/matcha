@@ -27,7 +27,7 @@ def get_match_candidates(tracks, crthits, approach_distance_threshold=50):
             for crt_hit in crthits:
                 dca = calculate_distance_of_closest_approach(point, crt_hit)
                 if dca > approach_distance_threshold: continue
-                match_candidate = MatchCandidate(track, crt_hit)
+                match_candidate = MatchCandidate(track, crt_hit, dca)
                 match_candidates.append(match_candidate)
 
     return match_candidates
@@ -56,6 +56,7 @@ def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False):
     denominator = np.linalg.norm(unit_vec)
     numerator = np.linalg.norm(np.cross((crt_hit_position - track_endpoint), (crt_hit_position - end)))
     dca = numerator/denominator
+    print('[CALCDCA] DCA:', dca)
     return dca
 
 def get_best_match(match_candidates):
