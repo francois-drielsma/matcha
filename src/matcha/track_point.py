@@ -1,9 +1,8 @@
 import numpy as np
 
-# TODO Check units: should be cm/microsecond
 V_DRIFT = 0.1571 # MC 
 #V_DRIFT = 0.157565 # DATA
-TPC_X_BOUNDS = [-358.49, -210.215, -61.94, 61.94, 210.215, 358.49]
+TPC_X_BOUNDS = [358.49, 210.215, 61.94, -61.94, -210.215, -358.49]
 from enum import Enum
 
 class TPCRegion(Enum):
@@ -142,6 +141,8 @@ class TrackPoint:
 
     def _get_tpc_region(self, point_x):
         point_region = np.digitize(point_x, TPC_X_BOUNDS)
+        print('[GETREGION] point_x:', point_x)
+        print('[GETREGION] digitize:', point_region)
         #region = TPCRegion(point_region).name
         region = TPCRegion(point_region)
         print('[GETREGION] region', region)
