@@ -34,8 +34,8 @@ class MatchCandidate:
         self._distance_of_closest_approach = distance_of_closest_approach
 
     def __str__(self):
-        return (f"[MATCH_CANDIDATE] Track ID {self.track.id},"
-                f"CRTHit ID {self.crthit.id}, DCA {self.distance_of_closest_approach}")
+        return (f"[MATCH_CANDIDATE] Track ID {self.track.id}, CRTHit ID {self.crthit.id}\n\t"
+                f"DCA {self.distance_of_closest_approach}")
 
     @property
     def track(self):
@@ -135,27 +135,5 @@ class MatchMaker:
     def minimum_pe(self, value):
         self._minimum_pe = value
 
-    #@classmethod
-    #def calculate_distance_of_closest_approach(cls, track, crthit): 
-    #    track_start_x = track.start_x
-    #    track_start_y = track.start_y
-    #    track_start_z = track.start_z
-
-    #    track_direction_vector = track.get_track_angles()
-        # Calculate distance of closest approach.
-        # Requires shifting the track by -v*t and extrapolating to the 
-        # CRT hit position.
-    #    pass
-
-    #def get_crt_tpc_matches(self, tracks, crthits, approach_distance_threshold):
-        # Loop over CRT hits, calculate DCA for each, determine matches
-        # Return list of MatchCandidates
-    #    match_candidates = []
-    #    return match_candidates
-
-    #def get_best_match(self, match_candidates):
-        # Determine which match is best based on minimum distance of closest 
-        # approach
-    #    return min(candidate.distance_of_closest_approach for candidate in match_candidates)
 
 
