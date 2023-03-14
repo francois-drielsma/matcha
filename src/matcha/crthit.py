@@ -56,7 +56,7 @@ class CRTHit:
     def __str__(self):
         return (f"[CRTHit] ID {self.id}, total_pe {self.total_pe}\n\t"
                 f"xyz: ({self.position_x}, {self.position_y}, {self.position_z})\n\t"
-                f"err: ({self.error_x}, {self.position_y}, {self.position_z})\n\t"
+                f"err: ({self.error_x}, {self.error_y}, {self.error_z})\n\t"
                 f"plane self.plane{self.plane}, tagger {self.tagger}")
 
     ### Getters and setters ###
