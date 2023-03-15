@@ -7,9 +7,9 @@ import numpy as np
 """
 Collection of functions for performing CRT-TPC matching
 """
-
-# TODO How to handle DCA for both start and end points?
 # TODO Extrapolate in both directions?
+# TODO Find a good reference for DCA equation
+
 def get_match_candidates(tracks, crthits, approach_distance_threshold=50):
     """
     Loop over CRT hits, calculate DCA for each, determine matches
@@ -18,8 +18,6 @@ def get_match_candidates(tracks, crthits, approach_distance_threshold=50):
 
     match_candidates = []
     for track in tracks:
-        # get_track_endpoints gives a tuple of TrackPoint instances corresponding to 
-        # the start and end points
         track_startpoint, track_endpoint = track.get_track_endpoints()
         for point in (track_startpoint, track_endpoint):
             print('Point tpc region name:', point.tpc_region.name)
@@ -45,7 +43,6 @@ def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False):
     print('[CALCDCA] track_point:', track_point)
     print('[CALCDCA] track_point x:', track_point.position_x)
     crt_hit_time = crt_hit.get_time_in_microseconds(isdata)
-    # Shift track point by -v*t 
     track_point.shift_position_x(crt_hit_time, isdata)
     print('[CALCDCA] track_point shifted x:', track_point.position_x)
     # Do some fancy linear algebra to get the DCA
