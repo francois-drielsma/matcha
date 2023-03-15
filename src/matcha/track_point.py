@@ -184,7 +184,8 @@ class TrackPoint:
             print('[DRIFTDIRETION] None')
             return None
 
-    def shift_position_x(self, t0, drift_velocity=V_DRIFT, isdata=False):
+    #def shift_position_x(self, t0, drift_velocity=V_DRIFT, isdata=False):
+    def shift_position_x(self, t0, isdata=False):
         """
         Method to shift the track endpoint x-position  along the drift
         direction according to t0 and drift velocity.
@@ -204,7 +205,12 @@ class TrackPoint:
         position_x      = self.position_x
         drift_direction = self.drift_direction
 
-        shifted_x = position_x + drift_velocity * t0 * drift_direction
+        print('[SHIFTX] t0:', t0)
+        print('[SHIFTX] drift velocity:', V_DRIFT)
+        print('[SHIFTX] drift direction:', drift_direction)
+        print('[SHIFTX] position_x:', position_x)
+        shifted_x = position_x + V_DRIFT * t0 * drift_direction
+        print('[SHIFTX] shifted_x:', shifted_x)
         
         self.position_x = shifted_x
 
