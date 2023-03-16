@@ -168,21 +168,21 @@ class CRTHit:
             Boolean flag for running on data as opposed to MC. Default: False
         """
         import math
-        crtTime = math.inf
+        crt_time = math.inf
 
         if isdata:
             if self.fTSMode == 1:
-                crtTime = int(self.t1_ns) * 1e-3 
+                crt_time = int(self.t1_ns) * 1e-3 
             else:
-                crtTime = float(self.t0_ns - (trigger_timestamp%1_000_000_000))/1e3
-                if crtTime < -0.5e6:
-                    crtTime += 1e6
-                elif crtTime >= 0.5e6:
-                    crtTime -= 1e6
+                crt_time = float(self.t0_ns - (trigger_timestamp%1_000_000_000))/1e3
+                if crt_time < -0.5e6:
+                    crt_time += 1e6
+                elif crt_time >= 0.5e6:
+                    crt_time -= 1e6
         else:
-            crtTime = self.t0_ns/1e3
+            crt_time = self.t0_ns/1e3
 
-        return crtTime
+        return crt_time
 
     
 
