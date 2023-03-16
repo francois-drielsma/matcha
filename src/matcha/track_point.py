@@ -197,22 +197,19 @@ class TrackPoint:
             the cathode, the t0 is assumed to be the CRT hit time for the
             purpose of shifting the track and determining whether it matches
             the CRT hit. 
-        drift_velocity : float
-            Drift velocity value in cm/microseconds. 
+        isdata: bool, optional
+            False is running on simulation, true if running on data. Changes
+            the drift velocity value if True. 
         """
         global V_DRIFT
         if isdata: V_DRIFT = 0.157565
+
         position_x      = self.position_x
         drift_direction = self.drift_direction
 
-        print('[SHIFTX] t0:', t0)
-        print('[SHIFTX] drift velocity:', V_DRIFT)
-        print('[SHIFTX] drift direction:', drift_direction)
-        print('[SHIFTX] position_x:', position_x)
         shifted_x = position_x + V_DRIFT * t0 * drift_direction
-        print('[SHIFTX] shifted_x:', shifted_x)
         
-        self.position_x = shifted_x
+        return shifted_x
 
 
 
