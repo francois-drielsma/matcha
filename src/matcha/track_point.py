@@ -184,7 +184,24 @@ class TrackPoint:
             print('[DRIFTDIRETION] None')
             return None
 
-    #def shift_position_x(self, t0, drift_velocity=V_DRIFT, isdata=False):
+    def calculate_distance_of_closest_approach(crt_hit, isdata=False): 
+        """
+        Insert Docstring here
+        Insert link explaining linear algebra 
+        """
+        crt_hit_time = crt_hit.get_time_in_microseconds(isdata)
+        crt_hit_position = np.array([crt_hit.position_x, crt_hit.position_y, crt_hit.position_z])
+
+        point_shifted_x = self.shift_position_x(crt_hit_time, isdata)
+        track_point = np.array([point_shifted_x, self.position_y, self.position_z])
+        track_point_direction = np.array([self.direction_x, self.direction_y, self.direction_z])
+        endpoint = np.array(track_point + track_point_direction)
+
+        denominator = np.linalg.norm(track_point_direction)
+        numerator = np.linalg.norm(np.cross((crt_hit_position - track_point), (crt_hit_position - endpoint)))
+        dca = numerator/denominator
+        return dca
+
     def shift_position_x(self, t0, isdata=False):
         """
         Method to shift the track endpoint x-position  along the drift
