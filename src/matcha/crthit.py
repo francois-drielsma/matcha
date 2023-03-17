@@ -35,10 +35,10 @@ class CRTHit:
     -------
     TODO INSERT
     """
-    def __init__(self, id, total_pe=0, t0_sec=0, t0_ns=0, t1_ns=0, 
-                 position_x=0, position_y=0, 
-                 position_z=0, error_x=0, error_y=0, error_z=0, 
-                 plane=-1, tagger=''):
+    def __init__(self, id, t0_sec, t0_ns, t1_ns, 
+                 position_x, position_y, position_z, 
+                 error_x=0, error_y=0, error_z=0, 
+                 total_pe=-1, plane=-1, tagger=''):
         self._id = id
         self._total_pe = total_pe
         self._t0_sec = t0_sec

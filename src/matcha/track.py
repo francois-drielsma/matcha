@@ -19,6 +19,10 @@ class Track:
         Identifier for the detector image, or "event." Default: -1
     interaction_id : int
         Identifier for the parent interaction, or "vertex." Default: -1
+    points : array-like (N, 3)
+        List of 3D points comprising the track. Default: []
+    depositions : array-like (N, 1)
+        List of energy deposition values for each point in rescaled ADC units. Default: []
     start_x : float
         x-position of the first track point in cm. Default: 0
     start_y : float
@@ -31,10 +35,6 @@ class Track:
         y-position of the last track point in cm. Default: 0
     end_z : float
         z-position of the last track point in cm. Default: 0
-    points : array-like (N, 3)
-        List of 3D points comprising the track. Default: []
-    depositions : array-like (N, 1)
-        List of energy deposition values for each point in rescaled ADC units. Default: []
     Methods
     -------
     get_endpoints(points, depositions, radius=20):
@@ -46,10 +46,10 @@ class Track:
         Calculate approximate angles of the track end points using PCA.
         Return: ordered tuple of (startpoint_angle, endpoint_angle)
     """
-    def __init__(self, id, image_id=-1, interaction_id=-1, 
+    def __init__(self, id, image_id, interaction_id, 
+                 points, depositions,
                  start_x=0, start_y=0, start_z=0, 
-                 end_x=0,   end_y=0,   end_z=0,
-                 points=[], depositions=[]):
+                 end_x=0, end_y=0, end_z=0):
 
         self._id = id
         self._image_id       = image_id
@@ -241,37 +241,4 @@ class Track:
         )
 
         return track_start_point, track_end_point
-
-    def get_best_match(self, match_candidates):
-        """
-        Track class method to determine the best CRTHit match for each TrackPoint.
-
-        Parameters
-        ----------
-        match_candidates : list containing a list of MatchCandidates for each TrackPoint.
-            This list of lists is output from get_match_candidates().
-
-        Return
-        ------
-        List of MatchCandidates with the minimum distance of closest 
-        approach for each TrackPoint.
-        """
-
-        min_dca = np.inf
-        #best_match = None
-
-        for trackpoint_matches in match_candidates:
-            for match in trackpoint_matches:
-                best_match = None
-                this_dca = match.distance_of_closest_approach
-                if this_dca > min_dca: continue
-                min_dca = this_dca
-                best_match = match
-
-        return best_match
-
-
-
-
-
 
