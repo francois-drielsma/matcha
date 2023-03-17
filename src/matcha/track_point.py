@@ -1,4 +1,5 @@
 import numpy as np
+from .crthit import CRTHit
 
 V_DRIFT = 0.1571 # MC 
 #V_DRIFT = 0.157565 # DATA
@@ -141,11 +142,8 @@ class TrackPoint:
 
     def _get_tpc_region(self, point_x):
         point_region = np.digitize(point_x, TPC_X_BOUNDS)
-        print('[GETREGION] point_x:', point_x)
-        print('[GETREGION] digitize:', point_region)
         #region = TPCRegion(point_region).name
         region = TPCRegion(point_region)
-        print('[GETREGION] region', region)
         return region
 
     def _get_drift_direction(self, tpc_region):
@@ -168,23 +166,18 @@ class TrackPoint:
             +1 or -1 if the point is inside an active TPC volume, else None.
         """
 
-        print('[GETDRIFT] tpc_region', tpc_region)
         region_name = tpc_region.name
-        print('region_name = ', region_name)
         # West-drifting TPCs
         if region_name == 'WW' or region_name == 'EW': 
-            print('[DRIFTDIRETION] Positive drift')
             return 1
         # East-drifting TPCs
         elif region_name == 'EE' or region_name == 'WE': 
-            print('[DRIFTDIRETION] Negative drift')
             return -1
         # Outside TPCs
         else:
-            print('[DRIFTDIRETION] None')
             return None
 
-    def calculate_distance_of_closest_approach(crt_hit, isdata=False): 
+    def calculate_distance_of_closest_approach(self, crt_hit, isdata=False): 
         """
         Insert Docstring here
         Insert link explaining linear algebra 

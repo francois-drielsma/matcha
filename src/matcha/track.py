@@ -37,14 +37,14 @@ class Track:
         List of energy deposition values for each point in rescaled ADC units. Default: []
     Methods
     -------
-    get_track_endpoints(points, depositions, radius=20):
+    get_endpoints(points, depositions, radius=20):
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
         Return: list of two numpy arrays of shape (3,) containing the start
         and end point, respectively.
-    get_endpoint_angles():
+    get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius)
         Calculate approximate angles of the track end points using PCA.
-        Return: ordered pair of (startpoint_angle, endpoint_angle)
+        Return: ordered tuple of (startpoint_angle, endpoint_angle)
     """
     def __init__(self, id, image_id=-1, interaction_id=-1, 
                  start_x=0, start_y=0, start_z=0, 
@@ -146,7 +146,39 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_track_endpoints(self, radius=10, min_points_in_radius=10):
+    def get_crthit_match_candidates(self, crthits, approach_distance_threshold=50):
+        from .match_candidate import MatchCandidate
+        """
+        Track class method to loop over a list of CRTHits and determine potential
+        matches based on distance of closest approach. This list of lists can
+        then be filtered to obtain the single best match for each TrackPoint using
+        the get_best_match method.
+
+        Return
+        ------
+        List containing a list of MatchCandidates for each TrackPoint.
+        """
+        match_candidates = []
+        track_startpoint, track_endpoint = self.get_endpoints()
+        for trackpoint in (track_startpoint, track_endpoint):
+            if trackpoint.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
+            trackpoint_match_candidates = []
+            for crt_hit in crthits:
+                dca = trackpoint.calculate_distance_of_closest_approach(crt_hit)
+                if dca > approach_distance_threshold: continue
+                trackpoint_match_candidate = MatchCandidate(self, crt_hit, dca)
+                trackpoint_match_candidates.append(trackpoint_match_candidate)
+
+            if not trackpoint_match_candidates: continue
+
+            match_candidates.append(trackpoint_match_candidates)
+
+            #trackpoint_best_match = self.get_best_match(trackpoint_match_candidates)
+            #match_candidates.append(trackpoint_best_match)
+
+        return match_candidates
+
+    def get_endpoints(self, radius=10, min_points_in_radius=10):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -166,9 +198,9 @@ class Track:
         and end point (respectively).
         """
         if not self.points.any():
-            raise ValueError('Track points attribute must be filled before calling get_track_endpoints')
+            raise ValueError('Track points attribute must be filled before calling get_endpoints')
         if not self.depositions.any():
-            raise ValueError('Track depositions attribute must be filled before calling get_track_endpoints')
+            raise ValueError('Track depositions attribute must be filled before calling get_endpoints')
 
         def get_local_density(candidates, points, depositions, radius, min_points_in_radius):
             local_density = []
@@ -205,30 +237,10 @@ class Track:
                                points[np.argmax(projection[:,0])]])
         local_density = get_local_density(candidates, points, depositions, radius, min_points_in_radius)
 
-        #for ci, candidate in enumerate(candidates):
-        #    candidate = candidate.reshape(1, 3)
-        #    distances = cdist(candidate, points)
-        #    # In our case cdist returns a 2D array of shape (1, len(points)), but
-        #    # we only need the first dimension for indexing purposes
-        #    mask = distances[0] < radius
-        #    if np.sum(mask) > min_points_in_radius:
-        #        # Perform PCA in this neighborhood to get a better end point position 
-        #        local_projection = pca.fit_transform(points[mask])
-        #        local_candidates = [points[mask][np.argmin(local_projection[:,0])], 
-        #                            points[mask][np.argmax(local_projection[:,0])]]
-        #        # Replace entry in the original candidates array with the best local candidate
-        #        candidates[ci] = local_candidates[np.argmin(cdist(candidate, local_candidates)[0])]
-        #        #mask = (cdist([candidates[ci]], points)[0] < radius)
-        #        mask = (cdist([candidates[ci]], points)[0] < radius)
-        #    local_density.append(np.sum(depositions[mask]))
-        #    print('local density:', local_density)
-
         # If the second point (assumed to be the end point) has lower charge
         # density, flip the candidates
         if np.argmin(local_density) == 1:
-            #local_density.reverse()
             candidates = np.flip(candidates, axis=0)
-        print('[GETENDPOINTS] Final candidates:', candidates)
 
         start_point, end_point = candidates[0], candidates[1]
         angles = get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius)
@@ -261,6 +273,34 @@ class Track:
         )
 
         return track_start_point, track_end_point
+
+    def get_best_match(self, match_candidates):
+        """
+        Track class method to determine the best CRTHit match for each TrackPoint.
+
+        Parameters
+        ----------
+        match_candidates : list containing a list of MatchCandidates for each TrackPoint.
+            This list of lists is output from get_match_candidates().
+
+        Return
+        ------
+        List of MatchCandidates with the minimum distance of closest 
+        approach for each TrackPoint.
+        """
+
+        min_dca = np.inf
+        #best_match = None
+
+        for trackpoint_matches in match_candidates:
+            for match in trackpoint_matches:
+                best_match = None
+                this_dca = match.distance_of_closest_approach
+                if this_dca > min_dca: continue
+                min_dca = this_dca
+                best_match = match
+
+        return best_match
 
 
 
