@@ -10,35 +10,71 @@ Collection of functions for performing CRT-TPC matching
 # TODO Extrapolate in both directions?
 # TODO Find a good reference for DCA equation
 
-def get_match_candidates(tracks, crthits, approach_distance_threshold=50):
+def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50):
+    """
+    Should return a list of MatchCandidates, one per track. If each Track 
+    endpoint has multiple candidates, select only the one with the smallest
+    DCA.
+    """
+    match_candidates = []
+    best_matches = []
+    for track in tracks:
+        match_candidates = get_track_match_candidates(track, crthits, approach_distance_threshold)
+        if not match_candidates: continue
+        track_best_match = get_best_match(match_candidates)
+        print('[GETTRACKCRTHITMATCHES] track {} best match: {}'.format(track.id, track_best_match))
+        best_matches.append(track_best_match)
+
+    print('[GETTRACKCRTHITMATCH] best_matches', best_matches)
+    return best_matches
+
+def get_track_match_candidates(track, crthits, approach_distance_threshold=50):
     """
     Loop over CRT hits, calculate DCA for each, determine matches
     Return list of MatchCandidates
     """
 
-    best_matches = []
-    for track in tracks:
-        track_startpoint, track_endpoint = track.get_track_endpoints()
-        for point in (track_startpoint, track_endpoint):
-            print('Point tpc region name:', point.tpc_region.name)
-            if point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
-            trackpoint_match_candidates = []
-            for crt_hit in crthits:
-                dca = calculate_distance_of_closest_approach(point, crt_hit)
-                if dca > approach_distance_threshold: continue
-                print('[GETMATCHES] Got good DCA')
-                trackpoint_match_candidate = MatchCandidate(track, crt_hit, dca)
-                print('[GETMATCHES] Appending', trackpoint_match_candidate)
-                trackpoint_match_candidates.append(trackpoint_match_candidate)
-                print('[GETMATCHES] match_candidates:', [m for m in trackpoint_match_candidates])
+    match_candidates = []
+    track_startpoint, track_endpoint = track.get_endpoints()
+    for point in (track_startpoint, track_endpoint):
+        if point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
+        #trackpoint_match_candidates = []
+        for crt_hit in crthits:
+            dca = calculate_distance_of_closest_approach(point, crt_hit)
+            if dca > approach_distance_threshold: continue
+            print('[GETMATCHES] Got good DCA')
+            match_candidate = MatchCandidate(track, crt_hit, dca)
+            print('[GETMATCHES] Appending', match_candidate)
+            match_candidates.append(match_candidate)
 
-            print('[GETMATCHES] Getting best match for ', [m for m in trackpoint_match_candidates])
+        print('[GETMATCHES] Getting best match for ', [m for m in match_candidates])
 
-            if not trackpoint_match_candidates: continue
-            this_trackpoint_best_match = get_best_match(trackpoint_match_candidates)
-            best_matches.append(this_trackpoint_best_match)
+        #if not trackpoint_match_candidates: continue
+        #this_trackpoint_best_match = get_best_match(trackpoint_match_candidates)
+        #best_matches.append(this_trackpoint_best_match)
 
-    return best_matches
+    return match_candidates
+
+def get_best_match(match_candidates):
+    #return min(candidate.distance_of_closest_approach for candidate in match_candidates)
+    is_valid_list = all(isinstance(element, MatchCandidate) for element in match_candidates)
+    if not is_valid_list:
+        raise ValueError("""
+            get_best_match method received an invalid list of match_candidates.
+            match_candidates must only contain MatchCandidate class instances.
+            """)
+    print('[BESTMATCH] len match candidates:', len(match_candidates))
+    print('[BESTMATCH] match_candidates:', [m for m in match_candidates])
+    min_dca = np.inf
+    best_match = None
+    for match in match_candidates:
+        this_dca = match.distance_of_closest_approach
+        if this_dca < min_dca:
+            min_dca = this_dca
+            best_match = match
+
+    print('[BESTMATCH] returning best match', best_match)
+    return best_match
 
 def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False): 
     """
@@ -67,35 +103,7 @@ def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False):
     print('[CALCDCA] DCA:', dca)
     return dca
 
-def get_best_match(match_candidates):
-    #return min(candidate.distance_of_closest_approach for candidate in match_candidates)
-    if not match_candidates: 
-        print('[BESTMATCH] NOT match_candidates')
-        return None
-    print('[BESTMATCH] len match candidates:', len(match_candidates))
-    print('[BESTMATCH] match_candidates:', [m for m in match_candidates])
-    min_dca = np.inf
-    best_match = None
-    for match in match_candidates:
-        this_dca = match.distance_of_closest_approach
-        if this_dca < min_dca:
-            min_dca = this_dca
-            best_match = match
-
-    print('[BESTMATCH] returning best match', best_match)
-    return best_match
         
-
-
-
-
-
-
-
-
-
-
-
 
 
 

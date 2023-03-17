@@ -37,7 +37,7 @@ class Track:
         List of energy deposition values for each point in rescaled ADC units. Default: []
     Methods
     -------
-    get_track_endpoints(points, depositions, radius=20):
+    get_endpoints(points, depositions, radius=20):
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
         Return: list of two numpy arrays of shape (3,) containing the start
@@ -146,7 +146,7 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_track_endpoints(self, radius=10, min_points_in_radius=10):
+    def get_endpoints(self, radius=10, min_points_in_radius=10):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -166,9 +166,9 @@ class Track:
         and end point (respectively).
         """
         if not self.points.any():
-            raise ValueError('Track points attribute must be filled before calling get_track_endpoints')
+            raise ValueError('Track points attribute must be filled before calling get_endpoints')
         if not self.depositions.any():
-            raise ValueError('Track depositions attribute must be filled before calling get_track_endpoints')
+            raise ValueError('Track depositions attribute must be filled before calling get_endpoints')
 
         def get_local_density(candidates, points, depositions, radius, min_points_in_radius):
             local_density = []
