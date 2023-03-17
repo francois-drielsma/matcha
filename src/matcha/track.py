@@ -146,38 +146,6 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_crthit_match_candidates(self, crthits, approach_distance_threshold=50):
-        from .match_candidate import MatchCandidate
-        """
-        Track class method to loop over a list of CRTHits and determine potential
-        matches based on distance of closest approach. This list of lists can
-        then be filtered to obtain the single best match for each TrackPoint using
-        the get_best_match method.
-
-        Return
-        ------
-        List containing a list of MatchCandidates for each TrackPoint.
-        """
-        match_candidates = []
-        track_startpoint, track_endpoint = self.get_endpoints()
-        for trackpoint in (track_startpoint, track_endpoint):
-            if trackpoint.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
-            trackpoint_match_candidates = []
-            for crt_hit in crthits:
-                dca = trackpoint.calculate_distance_of_closest_approach(crt_hit)
-                if dca > approach_distance_threshold: continue
-                trackpoint_match_candidate = MatchCandidate(self, crt_hit, dca)
-                trackpoint_match_candidates.append(trackpoint_match_candidate)
-
-            if not trackpoint_match_candidates: continue
-
-            match_candidates.append(trackpoint_match_candidates)
-
-            #trackpoint_best_match = self.get_best_match(trackpoint_match_candidates)
-            #match_candidates.append(trackpoint_best_match)
-
-        return match_candidates
-
     def get_endpoints(self, radius=10, min_points_in_radius=10):
         """
         Calculates the start/end points of the track using local charge
