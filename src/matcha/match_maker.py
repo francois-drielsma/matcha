@@ -16,16 +16,13 @@ def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50):
     endpoint has multiple candidates, select only the one with the smallest
     DCA.
     """
-    match_candidates = []
     best_matches = []
     for track in tracks:
         match_candidates = get_track_match_candidates(track, crthits, approach_distance_threshold)
         if not match_candidates: continue
         track_best_match = get_best_match(match_candidates)
-        print('[GETTRACKCRTHITMATCHES] track {} best match: {}'.format(track.id, track_best_match))
         best_matches.append(track_best_match)
 
-    print('[GETTRACKCRTHITMATCH] best_matches', best_matches)
     return best_matches
 
 def get_track_match_candidates(track, crthits, approach_distance_threshold=50):
@@ -78,29 +75,38 @@ def get_best_match(match_candidates):
 
 def calculate_distance_of_closest_approach(track_point, crt_hit, isdata=False): 
     """
-    Tyler's C++ method to be ported:
-        TVector3 pos (hit.x_pos, hit.y_pos, hit.z_pos);
-        TVector3 end = start + direction;
-        double denominator = direction.Mag();
-        double numerator = (pos - start).Cross(pos - end).Mag();
-        return numerator/denominator;
+    Calculate distance of closest approach between a CRTHit and a line segment
+    defined by the track end point and direction.
+    
+    See https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+    for the equation and derivation.
+
+    Parameters
+    ----------
+    track_point : matcha.TrackPoint
+        Track end point from Track.get_endpoints() 
+    crt_hit : matcha.CRTHit
+        CRT hit to which we calculate distance of closest approach
+    isdata : bool
+        Whether to run on simulation or data. Deteremines which value of
+        drift velocity to use when getting CRT hit time.
+
+    Return
+    ------
+    float value of distance of closest approach.
     """
-    print('[CALCDCA] crt_hit:', crt_hit)
-    print('[CALCDCA] track_point:', track_point)
-    print('[CALCDCA] track_point x:', track_point.position_x)
     crt_hit_time = crt_hit.get_time_in_microseconds(isdata)
-    #track_point.shift_position_x(crt_hit_time, isdata)
     shifted_x = track_point.shift_position_x(crt_hit_time, isdata)
-    print('[CALCDCA] track_point shifted x:', shifted_x)
-    # Do some fancy linear algebra to get the DCA
+
     crt_hit_position = np.array([crt_hit.position_x, crt_hit.position_y, crt_hit.position_z])
     track_endpoint = np.array([shifted_x, track_point.position_y, track_point.position_z])
-    unit_vec = np.array([track_point.direction_x, track_point.direction_y, track_point.direction_z])
-    end = np.array(track_endpoint + unit_vec)
-    denominator = np.linalg.norm(unit_vec)
-    numerator = np.linalg.norm(np.cross((crt_hit_position - track_endpoint), (crt_hit_position - end)))
+    track_point_direction = np.array([track_point.direction_x, track_point.direction_y, track_point.direction_z])
+    point_on_line = np.array(track_endpoint + track_point_direction)
+
+    numerator = np.linalg.norm(np.cross((crt_hit_position - track_endpoint), (crt_hit_position - point_on_line)))
+    denominator = np.linalg.norm(track_point_direction)
+
     dca = numerator/denominator
-    print('[CALCDCA] DCA:', dca)
     return dca
 
         
