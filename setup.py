@@ -14,6 +14,7 @@ setup(
     packages=find_packages(where="src"), 
     package_dir={"":"src"},
     install_requires=['scikit-learn', 'numpy', 'scipy'],
+    extras_require={'nbstripout': ['nbstripout']},
     python_requires='>=3.6',
     classifiers=[
         "Programming Language :: Python :: 3",
