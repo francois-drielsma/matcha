@@ -17,10 +17,25 @@ x_shifted = drift_direction * drift_velocity * t0
 where `drift_direction` is either `+1` or `-1`, depending on the coordinate system and the region of the LArTPC in which the track point is located.
 
 # Installation
-To build, simply clone this repository and install using pip:
+
+Though intentionally lightweight, `matcha` does include some external dependencies which should be installed in a virtual environment to avoid conflicts with other packages. If you have access to anaconda, create a conda environment and install matcha from the top directory as follows:
+
 ```
-git clone https://github.com/andrewmogan/matcha.git
-cd matcha
+conda create -n my_environment
+conda activate my_environment
+```
+
+Or, using Python's built-in `venv` module:
+
+```
+cd /path/to/virtual/environments 
+python3 -m venv my_environment
+source /path/to/virtual/environments/my_environment/bin/activate
+```
+
+Once your environment is setup, `matcha` can be installed simply by using `pip`:
+```
+cd /path/to/lardiff/python/
 python3 -m pip install .
 ```
 
