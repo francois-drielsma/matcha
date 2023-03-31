@@ -3,14 +3,14 @@ from .track import Track
 from .track_point import TrackPoint
 from .crthit import CRTHit
 from .match_candidate import MatchCandidate
+from .writer import write_to_file
 import numpy as np
 """
 Collection of functions for performing CRT-TPC matching
 """
 # TODO Extrapolate in both directions?
-# TODO Find a good reference for DCA equation
 
-def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50):
+def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50, save_to_file=False):
     """
     Should return a list of MatchCandidates, one per track. If each Track 
     endpoint has multiple candidates, select only the one with the smallest
@@ -22,6 +22,8 @@ def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50):
         if not match_candidates: continue
         track_best_match = get_best_match(match_candidates)
         best_matches.append(track_best_match)
+
+    if save_to_file: write_to_file(tracks, crthits, best_matches) 
 
     return best_matches
 
