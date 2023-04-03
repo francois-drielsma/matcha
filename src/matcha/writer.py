@@ -3,7 +3,6 @@ from .track import Track
 from .track_point import TrackPoint
 from .crthit import CRTHit
 from .match_candidate import MatchCandidate
-from .writer import write_to_file
 import numpy as np
 
 def write_tracks_to_file(tracks, file_path):
@@ -49,7 +48,7 @@ def write_tracks_to_file(tracks, file_path):
         data['track_points'].append(track.points)
         data['track_depositions'].append(track.depositions)
     
-    np.save(file_path+'/tracks.npy', data)
+    np.save(file_path+'/tracks.npy', data, allow_pickle=True)
 
 def write_crthits_to_file(crthits, file_path):
     """
@@ -97,7 +96,7 @@ def write_crthits_to_file(crthits, file_path):
         data['crthit_plane'].append(crthit.plane)
         data['crthit_tagger'].append(crthit.tagger)
     
-    np.save(file_path+'/crthits.npy', data)
+    np.save(file_path+'/crthits.npy', data, allow_pickle=True)
 
 def write_match_candidates_to_file(match_candidates, file_path):
     """
@@ -129,15 +128,17 @@ def write_match_candidates_to_file(match_candidates, file_path):
         data['crthit'].append(match_candidate.crthit)
         data['distance_of_closest_approach'].append(match_candidate.distance_of_closest_approach)
 
-    np.save(file_path+'/match_candidates.npy', data)
+    np.save(file_path+'/match_candidates.npy', data, allow_pickle=True)
 
-def write_to_file(tracks, crthits, match_candidates=[], file_path=''):
+def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
         file_path = ''
+    print('Saving matcha class files to', file_path)
     write_tracks_to_file(tracks, file_path)
     write_crthits_to_file(crthits, file_path)
     write_match_candidates_to_file(match_candidates, file_path)
+    print('Done saving')
 
 
 

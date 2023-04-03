@@ -5,12 +5,14 @@ from .crthit import CRTHit
 from .match_candidate import MatchCandidate
 from .writer import write_to_file
 import numpy as np
+
 """
 Collection of functions for performing CRT-TPC matching
 """
 # TODO Extrapolate in both directions?
 
-def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50, save_to_file=False):
+def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50, 
+                             save_to_file=False, file_path='.'):
     """
     Should return a list of MatchCandidates, one per track. If each Track 
     endpoint has multiple candidates, select only the one with the smallest
