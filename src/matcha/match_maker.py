@@ -23,7 +23,7 @@ def get_track_crthit_matches(tracks, crthits, approach_distance_threshold=50, sa
         track_best_match = get_best_match(match_candidates)
         best_matches.append(track_best_match)
 
-    if save_to_file: write_to_file(tracks, crthits, best_matches) 
+    if save_to_file: write_to_file(tracks, crthits, file_path) 
 
     return best_matches
 

@@ -99,13 +99,45 @@ def write_crthits_to_file(crthits, file_path):
     
     np.save(file_path+'/crthits.npy', data)
 
+def write_match_candidates_to_file(match_candidates, file_path):
+    """
+    Write a list of MatchCandidate instances to a NumPy file. Raises a
+    ValueError if the match_candidates list is empty.
 
-def write(tracks, crthits, file_path):
+    Args
+    ----
+    match_candidates : list 
+        A list of Track instances.
+    file_path : str 
+        Output path to store the Numpy file. Defaults to current directory if
+        file_path does not exist
+
+    Returns:
+        None.
+    """
+    if not match_candidates:
+        raise ValueError("Match candidates list is empty")
+
+    data = {
+        'track': [],
+        'crthit': [],
+        'distance_of_closest_approach': []
+    }
+
+    for match_candidate in match_candidates:
+        data['track'].append(match_candidate.track)
+        data['crthit'].append(match_candidate.crthit)
+        data['distance_of_closest_approach'].append(match_candidate.distance_of_closest_approach)
+
+    np.save(file_path+'/match_candidates.npy', data)
+
+def write_to_file(tracks, crthits, match_candidates=[], file_path=''):
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
-        file_path = './'
+        file_path = ''
     write_tracks_to_file(tracks, file_path)
     write_crthits_to_file(crthits, file_path)
+    write_match_candidates_to_file(match_candidates, file_path)
 
 
 

@@ -8,8 +8,6 @@ class MatchCandidate:
 
     Attributes
     ----------
-    index : int
-        The index of the candidate match.
     track : matcha.Track
         The Track object in the candidate match.
     crthit : matcha.CRTHit
