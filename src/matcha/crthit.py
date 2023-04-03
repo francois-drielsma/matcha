@@ -6,8 +6,6 @@ class CRTHit:
     ----------
     id : int, required
         Unique identifier for CRTHit
-    total_pe : float
-        Number of photoelectrons (PE) in the CRT hit. Default: 0
     t0_sec : float
         Seconds-only part of the timestamp. Default: 0
     t0_ns : float
@@ -26,6 +24,8 @@ class CRTHit:
         Position in z-direction (cm) Default: 0
     error_z : float
         Uncertainty in z-direction (cm) Default: 0
+    total_pe : float
+        Number of photoelectrons (PE) in the CRT hit. Default: 0
     plane: int, optional
         Integer identifying CRT wall (TODO Find documentation on this)
     tagger: string, optional
@@ -33,7 +33,9 @@ class CRTHit:
 
     Methods
     -------
-    TODO INSERT
+    get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
+        Get CRTHit time in microseconds from configured t0 values and
+        trigger timestamp (only if running on data)
     """
     def __init__(self, id, t0_sec, t0_ns, t1_ns, 
                  position_x, position_y, position_z, 
