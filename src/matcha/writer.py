@@ -21,32 +21,32 @@ def write_tracks_to_file(tracks, file_path):
         None.
     """
     data = {
-        'track_id': [],
-        'track_image_id': [],
-        'track_interaction_id': [],
-        'track_start_x': [],
-        'track_start_y': [],
-        'track_start_z': [],
-        'track_end_x': [],
-        'track_end_y': [],
-        'track_end_z': [],
-        'track_points': [],
-        'track_depositions': []
+        'id': [],
+        'image_id': [],
+        'interaction_id': [],
+        'start_x': [],
+        'start_y': [],
+        'start_z': [],
+        'end_x': [],
+        'end_y': [],
+        'end_z': [],
+        'points': [],
+        'depositions': []
     }
 
     # Convert track objects to dictionary of lists
     for track in tracks:
-        data['track_id'].append(track.id)
-        data['track_image_id'].append(track.image_id)
-        data['track_interaction_id'].append(track.interaction_id)
-        data['track_start_x'].append(track.start_x)
-        data['track_start_y'].append(track.start_y)
-        data['track_start_z'].append(track.start_z)
-        data['track_end_x'].append(track.end_x)
-        data['track_end_y'].append(track.end_y)
-        data['track_end_z'].append(track.end_z)
-        data['track_points'].append(track.points)
-        data['track_depositions'].append(track.depositions)
+        data['id'].append(track.id)
+        data['image_id'].append(track.image_id)
+        data['interaction_id'].append(track.interaction_id)
+        data['start_x'].append(track.start_x)
+        data['start_y'].append(track.start_y)
+        data['start_z'].append(track.start_z)
+        data['end_x'].append(track.end_x)
+        data['end_y'].append(track.end_y)
+        data['end_z'].append(track.end_z)
+        data['points'].append(track.points)
+        data['depositions'].append(track.depositions)
     
     np.save(file_path+'/tracks.npy', data, allow_pickle=True)
 
@@ -66,35 +66,35 @@ def write_crthits_to_file(crthits, file_path):
         None.
     """
     data = {
-        'crthit_id': [],
-        'crthit_total_pe': [],
-        'crthit_t0_sec': [],
-        'crthit_t0_ns': [],
-        'crthit_t1_ns': [],
-        'crthit_position_x': [],
-        'crthit_position_y': [],
-        'crthit_position_z': [],
-        'crthit_error_x': [],
-        'crthit_error_y': [],
-        'crthit_error_z': [],
-        'crthit_plane': [],
-        'crthit_tagger': [] 
+        'id': [],
+        'total_pe': [],
+        't0_sec': [],
+        't0_ns': [],
+        't1_ns': [],
+        'position_x': [],
+        'position_y': [],
+        'position_z': [],
+        'error_x': [],
+        'error_y': [],
+        'error_z': [],
+        'plane': [],
+        'tagger': [] 
     }
     
     for crthit in crthits:
-        data['crthit_id'].append(crthit.id)
-        data['crthit_total_pe'].append(crthit.total_pe)
-        data['crthit_t0_sec'].append(crthit.t0_sec)
-        data['crthit_t0_ns'].append(crthit.t0_ns)
-        data['crthit_t1_ns'].append(crthit.t1_ns)
-        data['crthit_position_x'].append(crthit.position_x)
-        data['crthit_position_y'].append(crthit.position_y)
-        data['crthit_position_z'].append(crthit.position_z)
-        data['crthit_error_x'].append(crthit.error_x)
-        data['crthit_error_y'].append(crthit.error_y)
-        data['crthit_error_z'].append(crthit.error_z)
-        data['crthit_plane'].append(crthit.plane)
-        data['crthit_tagger'].append(crthit.tagger)
+        data['id'].append(crthit.id)
+        data['total_pe'].append(crthit.total_pe)
+        data['t0_sec'].append(crthit.t0_sec)
+        data['t0_ns'].append(crthit.t0_ns)
+        data['t1_ns'].append(crthit.t1_ns)
+        data['position_x'].append(crthit.position_x)
+        data['position_y'].append(crthit.position_y)
+        data['position_z'].append(crthit.position_z)
+        data['error_x'].append(crthit.error_x)
+        data['error_y'].append(crthit.error_y)
+        data['error_z'].append(crthit.error_z)
+        data['plane'].append(crthit.plane)
+        data['tagger'].append(crthit.tagger)
     
     np.save(file_path+'/crthits.npy', data, allow_pickle=True)
 
