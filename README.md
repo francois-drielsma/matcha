@@ -39,6 +39,16 @@ cd /path/to/lardiff/python/
 python3 -m pip install .
 ```
 
+## Optional `nbstripout` Install
+
+[nbstripout](https://github.com/kynan/nbstripout) is a handy Python package for "stripping out" cell output and metadata from Jupyter notebooks. While not necessary for running the Jupyter code in matcha, this tool makes committing and pushing Jupyter notebooks to Github much easier. If you plan to modify and submit pull requests for any Jupyter notebooks contained in this repository, please first install and run `nbstripout` to avoid superfluous conflicts. See the [contributing.md](https://github.com/andrewmogan/matcha/blob/main/contributing.md) file for more information. 
+
+To install `nbstripout` from within matcha, simply run
+
+```
+python3 -m pip install matcha[nbstripout]
+```
+
 # Usage
 The matching algorithm is called from `match_maker.py`. Before running the matching, however, you'll need to fill the `Track` and `CRTHit` classes. 
 
