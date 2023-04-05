@@ -18,7 +18,7 @@ where `drift_direction` is either `+1` or `-1`, depending on the coordinate syst
 
 # Installation
 
-Though intentionally lightweight, `matcha` does include some external dependencies which should be installed in a virtual environment to avoid conflicts with other packages. If you have access to anaconda, create a conda environment and install matcha from the top directory as follows:
+Though intentionally lightweight, `matcha` does include some external dependencies which should be installed in a virtual environment to avoid conflicts with other packages. If you have access to anaconda, create a virtual environment as follows:
 
 ```
 conda create -n my_environment
@@ -35,7 +35,7 @@ source /path/to/virtual/environments/my_environment/bin/activate
 
 Once your environment is setup, `matcha` can be installed simply by using `pip`:
 ```
-cd /path/to/lardiff/python/
+cd /path/to/matcha
 python3 -m pip install .
 ```
 
