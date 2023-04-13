@@ -38,13 +38,10 @@ class Track:
     Methods
     -------
     get_endpoints(points, depositions, radius=20):
-        Calculates the start/end points of the track using local charge
+        Calculates the start/end points and angles of the track using local charge
         density to guess at the Bragg peak.
         Return: list of two numpy arrays of shape (3,) containing the start
         and end point, respectively.
-    get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius)
-        Calculate approximate angles of the track end points using PCA.
-        Return: ordered tuple of (startpoint_angle, endpoint_angle)
     """
     def __init__(self, id, image_id, interaction_id, 
                  points, depositions,
@@ -146,7 +143,7 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_endpoints(self, radius=10, min_points_in_radius=10):
+    def get_endpoints(self, radius, min_points_in_radius):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.

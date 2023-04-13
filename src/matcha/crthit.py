@@ -154,7 +154,7 @@ class CRTHit:
     def tagger(self, value):
         self._tagger = value
 
-    def get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
+    def get_time_in_microseconds(self, trigger_timestamp, isdata):
         """
         CRTHit class method to retreive the "actual" time in microseconds.
 
@@ -173,6 +173,8 @@ class CRTHit:
         crt_time = math.inf
 
         if isdata:
+            if not trigger_timestamp:
+                raise ValueError('If isdata=True, you need to provide a trigger_timestamp')
             if self.fTSMode == 1:
                 crt_time = int(self.t1_ns) * 1e-3 
             else:
