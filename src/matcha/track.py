@@ -24,17 +24,17 @@ class Track:
     depositions : array-like (N, 1)
         List of energy deposition values for each point in rescaled ADC units. Default: []
     start_x : float
-        x-position of the first track point in cm. Default: 0
+        x-position of the first track point in cm. Default: None
     start_y : float
-        y-position of the first track point in cm. Default: 0
+        y-position of the first track point in cm. Default: None
     start_z : float
-        z-position of the first track point in cm. Default: 0
+        z-position of the first track point in cm. Default: None
     end_x : float
-        x-position of the last track point in cm. Default: 0
+        x-position of the last track point in cm. Default: None
     end_y : float
-        y-position of the last track point in cm. Default: 0
+        y-position of the last track point in cm. Default: None
     end_z : float
-        z-position of the last track point in cm. Default: 0
+        z-position of the last track point in cm. Default: None
     Methods
     -------
     get_endpoints(points, depositions, radius=20):
@@ -45,8 +45,8 @@ class Track:
     """
     def __init__(self, id, image_id, interaction_id, 
                  points, depositions,
-                 start_x=0, start_y=0, start_z=0, 
-                 end_x=0, end_y=0, end_z=0):
+                 start_x=None, start_y=None, start_z=None, 
+                 end_x=None, end_y=None, end_z=None):
 
         self._id = id
         self._image_id       = image_id
@@ -198,8 +198,8 @@ class Track:
         depositions = self.depositions
         pca = PCA(n_components=2)
         projection = pca.fit_transform(points)
-        candidates = np.array([points[np.argmin(projection[:,0])], 
-                               points[np.argmax(projection[:,0])]])
+        candidates = np.array([points[np.argmin(projection[:, 0])], 
+                               points[np.argmax(projection[:, 0])]])
         local_density = get_local_density(candidates, points, depositions, radius, min_points_in_radius)
 
         # If the second point (assumed to be the end point) has lower charge
