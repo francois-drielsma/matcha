@@ -18,7 +18,7 @@ where `drift_direction` is either `+1` or `-1`, depending on the coordinate syst
 
 # Installation
 
-Though intentionally lightweight, `matcha` does include some external dependencies which should be installed in a virtual environment to avoid conflicts with other packages. If you have access to anaconda, create a conda environment and install matcha from the top directory as follows:
+Though intentionally lightweight, `matcha` does include some external dependencies which should be installed in a virtual environment to avoid conflicts with other packages. If you have access to anaconda, create a virtual environment as follows:
 
 ```
 conda create -n my_environment
@@ -35,8 +35,18 @@ source /path/to/virtual/environments/my_environment/bin/activate
 
 Once your environment is setup, `matcha` can be installed simply by using `pip`:
 ```
-cd /path/to/lardiff/python/
+cd /path/to/matcha
 python3 -m pip install .
+```
+
+## Optional `nbstripout` Install
+
+[nbstripout](https://github.com/kynan/nbstripout) is a handy Python package for "stripping out" cell output and metadata from Jupyter notebooks. While not necessary for running the Jupyter code in matcha, this tool makes committing and pushing Jupyter notebooks to Github much easier. If you plan to modify and submit pull requests for any Jupyter notebooks contained in this repository, please first install and run `nbstripout` to avoid superfluous conflicts. See the [contributing.md](https://github.com/andrewmogan/matcha/blob/main/contributing.md) file for more information. 
+
+To install `nbstripout` from within matcha, simply run
+
+```
+python3 -m pip install matcha[nbstripout]
 ```
 
 # Usage

@@ -9,7 +9,7 @@ The basic steps to contributing to a Github project apply here:
 6. Submit a pull request (PR) to the main repository.
 
 # Opening Issues
-If you see that something isn't working as intended, open up a [Github Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues). Please include a detailed description of the problem and include appropriate tags.
+If you see that something isn't working as intended, or would like to request a new feature or improvement, open up a [Github Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues). Please include a detailed description of the problem and include appropriate tags.
 
 # Code Contributions
 
@@ -30,6 +30,12 @@ The table below provides some examples illustrating the above points.
 | for t in trks  | for track in tracks  |
 | # Define a function to match tracks and CRT hits <br> def func(x, y) | def get_track_crthit_match(track, crthit) |
 | # Set drift velocity <br> v = 1.0573 | DRIFT_VELOCITY = 1.0573 <br> velocity = DRIFT_VELOCITY |
+
+## Modifying Jupyter Notebooks on Github 
+
+As it turns out, Jupyter notebooks are actually just json files in disguise. All of the code information, as well as cell metadata and output, are stored in a json format under the hood. The issue with this is that Github will see *any* small change to a Jupyter notebook as a modification that needs to be committed and pushed. Something as simple as re-running a cell, even without changing the actual code, will modify the metadata and appear to Github as something significant. In other words, modifying Jupyter notebooks on Github is very likely to cause conflicts are will be painful to resolve. Luckily, there's a solution to this: [nbstripout](https://github.com/kynan/nbstripout), a handy package for "stripping out" the cell output and metadata from Jupyter notebooks. This makes saving them to Github much easier and less likely to produce conflicts. 
+
+TL;DR If you're going to modify and push Jupyter notebooks, add the optional `nbstripout` install option and run it on the notebook in question to make conflicts less painful. 
 
 ## Tests
 
