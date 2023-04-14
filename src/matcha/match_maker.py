@@ -46,8 +46,6 @@ def get_track_match_candidates(track, crthits,
 
     match_candidates = []
 
-    print('[GETTRACK] track.start_dir_x', track.start_dir_x)
-
     track_startpoint = TrackPoint(track_id=track.id, 
         position_x=track.start_x, position_y=track.start_y, position_z=track.start_z,
         direction_x=track.start_dir_x, direction_y=track.start_dir_y, direction_z=track.start_dir_z,
