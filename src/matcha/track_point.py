@@ -67,8 +67,9 @@ class TrackPoint:
         self._direction_x = direction_x
         self._direction_y = direction_y
         self._direction_z = direction_z
-        self._tpc_region  = self._get_tpc_region(self.position_x)
-        self._drift_direction = self._get_drift_direction(self.tpc_region)
+        if self.position_x is not None:
+            self._tpc_region  = self._get_tpc_region(self.position_x)
+            self._drift_direction = self._get_drift_direction(self.tpc_region)
 
     def __str__(self):
         return (f"[TrackPoint]: track_id {self.track_id}\n\t"
@@ -155,7 +156,7 @@ class TrackPoint:
         Bool
             True if all positions and directions are filled, else False.
         """
-        if self.position_x is None or self.position_y is None or self.position_z is None
+        if self.position_x is None or self.position_y is None or self.position_z is None \
         or self.direction_x is None or self.direction_y is None or self.direction_z is None:
             return False
 
