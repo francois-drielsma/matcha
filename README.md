@@ -82,15 +82,19 @@ The `Track` class attributes are based on the `Particle` class from [lartpc_mlre
 - `points`: (N, 3) array of 3D track points in cm.
 - `depositions`: (N, 3) array of track point energy depositions. This array is used for determining track track and end points based on which end of the track has greater average energy within a given radius. Since this is relative, the specific unit used doesn't matter.
 
-The _optional_ Track attributes correspond to user-provided track start and end points. If these are not provided, the start and end points, as well as their directions, are calculated using principle componenet analysis (PCA) on each track end within a user-defined radius. 
-- `start_x`: x-position of start point in cm. Default value is 0.
-- `start_y`: y-position of start point in cm. Default value is 0.
-- `start_z`: z-position of start point in cm. Default value is 0.
-- `end_x`: x-position of end point in cm. Default value is 0.
-- `end_y`: y-position of end point in cm. Default value is 0.
-- `end_z`: z-position of end point in cm. Default value is 0.
-
-The `Track` class contains internal methods which use the provided `points` and `depositions` to determine the track start and end points, as well as their respective direction vectors, using PCA. 
+The _optional_ Track attributes correspond to track start and end point positions and directions. If _all_ of these are not provided, the start and end points, as well as their directions, are estimated using PCA on each track end within a user-defined radius. 
+- `start_x`: x-position of start point in cm. Default value is None.
+- `start_y`: y-position of start point in cm. Default value is None.
+- `start_z`: z-position of start point in cm. Default value is None.
+- `start_dir_x`: x-direction of start point. Default value is None.
+- `start_dir_y`: y-direction of start point. Default value is None.
+- `start_dir_z`: z-direction of start point. Default value is None.
+- `end_x`: x-position of end point in cm. Default value is None.
+- `end_y`: y-position of end point in cm. Default value is None.
+- `end_z`: z-position of end point in cm. Default value is None.
+- `end_dir_x`: x-direction of end point. Default value is None.
+- `end_dir_y`: y-direction of end point. Default value is None.
+- `end_dir_z`: z-direction of end point. Default value is None.
 
 ## `MatchCandidate` Class
 
@@ -107,15 +111,21 @@ from matcha import match_maker
 track_crthit_matches = match_maker.get_track_crthit_matches(tracks, crthits)
 ```
 
-This returns a list of `MatchCandidate` instances. while each track end point can in principle have multiple match candidates, this function only returns the "best" match, i.e., the one with the minimum DCA for that `Track`. This means that the list `track_crthit_matches` will contain at most one `MatchCandidate` per `Track`. You may also pass the following optional parameters:
+This returns a list of `MatchCandidate` instances. While each track end point can in principle have multiple match candidates, this function only returns the "best" match, i.e., the one with the minimum DCA for that `Track`. This means that the list `track_crthit_matches` will contain at most one `MatchCandidate` per `Track`. 
+
+To tune the match making algorithm, you can pass any of the following optional parameters:
 - `approach_distance_threshold`: Minimum DCA (in cm) required for a `MatchCandidate` instance to be created. Default value is 50.
 - `dca_method`: Method of calculating DCA to use. Default value is `'simple'`. See `dca_methods.py` for other methods.
 - `pca_radius`: If using PCA to determine track start and end points, the radius (in number of track points) to consider about each end. Default value is 10.
 - `min_points_in_radius`: Minimum number of points within the PCA radius for PCA to be performed. Default value is 10. 
-- `trigger_timestamp`: Timestamp value for the event trigger. Used for shifting CRT hit time values. Only necessary when running on data (i.e., requires `isdata=True`). Default value is `None`.
+- `trigger_timestamp`: Timestamp value for the event trigger. Used for shifting CRT hit time values when running on data (i.e., requires `isdata=True`). Default value is `None`.
 - `isdata`: Boolean flag indicating whether the input values are from simulation or from real data. Default value is `False`. Must be set to `True` if you supply a `trigger_timestamp` value. 
 - `save_to_file`: Boolean flag indicating whether the output will be saved to a numpy `.npy` file. These files can be loaded into the `visualizer.ipynb` notebook. Default value is `False`.
 - `file_path`: Path in which to save the `.npy` file. Default value is `'.'` (current directory). 
+
+# Contributing
+
+Please read the [contributing.md](https://github.com/andrewmogan/matcha/blob/main/contributing.md) file for information on how you can contribute.
 
 # License
 Distributed under the MIT License. See LICENSE for more information.
