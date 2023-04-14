@@ -46,13 +46,15 @@ def get_track_match_candidates(track, crthits,
 
     match_candidates = []
 
+    print('[GETTRACK] track.start_dir_x', track.start_dir_x)
+
     track_startpoint = TrackPoint(track_id=track.id, 
-        position_x=track.start_x, position_y=track.start_y, position_z.start_z,
-        direction_x=track.start_dir_x, direction_y=track.start_dir_y, direction_z.start_dir_z,
+        position_x=track.start_x, position_y=track.start_y, position_z=track.start_z,
+        direction_x=track.start_dir_x, direction_y=track.start_dir_y, direction_z=track.start_dir_z,
     )
     track_endpoint = TrackPoint(track_id=track.id, 
-        position_x=track.end_x, position_y=track.end_y, position_z.end_z,
-        direction_x=track.end_dir_x, direction_y=track.end_dir_y, direction_z.end_dir_z,
+        position_x=track.end_x, position_y=track.end_y, position_z=track.end_z,
+        direction_x=track.end_dir_x, direction_y=track.end_dir_y, direction_z=track.end_dir_z,
     )
 
     if not track_startpoint.is_valid() or not track_endpoint.is_valid():
