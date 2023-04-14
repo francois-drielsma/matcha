@@ -1,8 +1,8 @@
 import numpy as np
 from .crthit import CRTHit
 
-V_DRIFT = 0.1571 # MC 
-#V_DRIFT = 0.157565 # DATA
+DRIFT_VELOCITY = 0.1571 # MC 
+#DRIFT_VELOCITY = 0.157565 # DATA
 TPC_X_BOUNDS = [358.49, 210.215, 61.94, -61.94, -210.215, -358.49]
 from enum import Enum
 
@@ -54,7 +54,7 @@ class TrackPoint:
 
     Methods
     -------
-    shift_position_x(t0, drift_velocity=V_DRIFT):
+    shift_position_x(t0, isdata):
         Shift the point position_x based on t0 and drift velocity. 
     """
     def __init__(self, track_id,
@@ -140,9 +140,29 @@ class TrackPoint:
     def tpc_region(self, value):
         self._tpc_region = value
 
+    def is_valid(self):
+        """
+        Check if TrackPoint position and direction attributes are filled. Used 
+        to determine whether or not to estimate endpoint positions and directions
+        using PCA.
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        Bool
+            True if all positions and directions are filled, else False.
+        """
+        if self.position_x is None or self.position_y is None or self.position_z is None
+        or self.direction_x is None or self.direction_y is None or self.direction_z is None:
+            return False
+
+        return True
+
     def _get_tpc_region(self, point_x):
         point_region = np.digitize(point_x, TPC_X_BOUNDS)
-        #region = TPCRegion(point_region).name
         region = TPCRegion(point_region)
         return region
 
@@ -193,13 +213,13 @@ class TrackPoint:
             False is running on simulation, true if running on data. Changes
             the drift velocity value if True. 
         """
-        global V_DRIFT
-        if isdata: V_DRIFT = 0.157565
+        global DRIFT_VELOCITY
+        if isdata: DRIFT_VELOCITY = 0.157565
 
         position_x      = self.position_x
         drift_direction = self.drift_direction
 
-        shifted_x = position_x + V_DRIFT * t0 * drift_direction
+        shifted_x = position_x + DRIFT_VELOCITY * t0 * drift_direction
         
         return shifted_x
 

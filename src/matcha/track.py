@@ -40,25 +40,33 @@ class Track:
     get_endpoints(points, depositions, radius=20):
         Calculates the start/end points and angles of the track using local charge
         density to guess at the Bragg peak.
-        Return: list of two numpy arrays of shape (3,) containing the start
-        and end point, respectively.
+        Return: list of two TrackPoint instances containing the start
+        and end point positions and unit vectors.
     """
     def __init__(self, id, image_id, interaction_id, 
                  points, depositions,
                  start_x=None, start_y=None, start_z=None, 
+                 start_dir_x=None, start_dir_y=None, start_dir_z=None, 
                  end_x=None, end_y=None, end_z=None):
+                 end_dir_x=None, end_dir_y=None, end_dir_z=None, 
 
         self._id = id
         self._image_id       = image_id
         self._interaction_id = interaction_id
+        self._points = points
+        self._depositions = depositions
         self._start_x = start_x
         self._start_y = start_y
         self._start_z = start_z
-        self._end_x   = end_x
-        self._end_y   = end_y
-        self._end_z   = end_z
-        self._points = points
-        self._depositions = depositions
+        self._start_dir_x = start_dir_x
+        self._start_dir_y = start_dir_y
+        self._start_dir_z = start_dir_z
+        self._end_x = end_x
+        self._end_y = end_y
+        self._end_z = end_z
+        self._end_dir_x = end_dir_x
+        self._end_dir_y = end_dir_y
+        self._end_dir_z = end_dir_z
 
     def __str__(self):
         return (f"[Track] ID {self.id}, image_id {self.image_id}, interaction_id {self.interaction_id}\n\t"

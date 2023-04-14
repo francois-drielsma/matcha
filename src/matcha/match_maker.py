@@ -4,7 +4,7 @@ from .track_point import TrackPoint
 from .crthit import CRTHit
 from .match_candidate import MatchCandidate
 from .writer import write_to_file
-from .dca_methods import simple_dca
+from .dca_methods import calculate_distance_of_closest_approach, simple_dca
 import numpy as np
 
 """
@@ -45,7 +45,23 @@ def get_track_match_candidates(track, crthits,
     """
 
     match_candidates = []
-    track_startpoint, track_endpoint = track.get_endpoints(pca_radius, min_points_in_radius)
+
+    track_startpoint = TrackPoint(track_id=track.id, 
+        position_x=track.start_x, position_y=track.start_y, position_z.start_z,
+        direction_x=track.start_dir_x, direction_y=track.start_dir_y, direction_z.start_dir_z,
+    )
+    track_endpoint = TrackPoint(track_id=track.id, 
+        position_x=track.end_x, position_y=track.end_y, position_z.end_z,
+        direction_x=track.end_dir_x, direction_y=track.end_dir_y, direction_z.end_dir_z,
+    )
+
+    if not track_startpoint.is_valid() or not track_endpoint.is_valid():
+        print('Estimating track start/end points and directions using PCA...')
+        track_startpoint, track_endpoint = track.get_endpoints(pca_radius, min_points_in_radius)
+        print('Done')
+    else:
+        print('Using user-provided track start/end points and directions')
+
     for point in (track_startpoint, track_endpoint):
         if point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
         for crt_hit in crthits:
@@ -76,39 +92,6 @@ def get_best_match(match_candidates):
     print('[BESTMATCH] returning best match', best_match)
     return best_match
 
-def calculate_distance_of_closest_approach(track_point, crt_hit, dca_method, 
-                                           trigger_timestamp, isdata): 
-    """
-    Calculate distance of closest approach between a CRTHit and a line segment
-    defined by the track end point and direction.
-    
-    See https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-    for the equation and derivation.
-
-    Parameters
-    ----------
-    track_point : matcha.TrackPoint
-        Track end point from Track.get_endpoints() 
-    crt_hit : matcha.CRTHit
-        CRT hit to which we calculate distance of closest approach
-    isdata : bool
-        Whether to run on simulation or data. Deteremines which value of
-        drift velocity to use when getting CRT hit time.
-
-    Return
-    ------
-    float value of distance of closest approach.
-    """
-    valid_dca_methods = ['simple']
-    if dca_method not in valid_dca_methods:
-        raise ValueError(f'dca_method must be one of {valid_dca_methods}')
-
-    if dca_method == 'simple':
-        dca = simple_dca(track_point, crt_hit, trigger_timestamp, isdata)
-        return dca
-
-    else:
-        raise ValueError('dca_method parameter must be one of')
 
 
 
