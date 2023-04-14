@@ -47,8 +47,8 @@ class Track:
                  points, depositions,
                  start_x=None, start_y=None, start_z=None, 
                  start_dir_x=None, start_dir_y=None, start_dir_z=None, 
-                 end_x=None, end_y=None, end_z=None):
-                 end_dir_x=None, end_dir_y=None, end_dir_z=None, 
+                 end_x=None, end_y=None, end_z=None,
+                 end_dir_x=None, end_dir_y=None, end_dir_z=None):
 
         self._id = id
         self._image_id       = image_id
@@ -117,6 +117,27 @@ class Track:
         self._start_z = value
 
     @property
+    def start_dir_x(self):
+        return self._start_dir_x
+    @start_dir_x.setter
+    def start_dir_x(self, value):
+        self._start_dir_x = value
+
+    @property
+    def start_dir_y(self):
+        return self._start_dir_y
+    @start_dir_y.setter
+    def start_dir_y(self, value):
+        self._start_dir_y = value
+
+    @property
+    def start_dir_z(self):
+        return self._start_dir_z
+    @start_dir_z.setter
+    def start_dir_z(self, value):
+        self._start_dir_z = value
+
+    @property
     def end_x(self):
         return self._end_x
     @end_x.setter
@@ -136,6 +157,27 @@ class Track:
     @end_z.setter
     def end_z(self, value):
         self._end_z = value
+
+    @property
+    def end_dir_x(self):
+        return self._end_dir_x
+    @end_dir_x.setter
+    def end_dir_x(self, value):
+        self._end_dir_x = value
+
+    @property
+    def end_dir_y(self):
+        return self._end_dir_y
+    @end_dir_y.setter
+    def end_dir_y(self, value):
+        self._end_dir_y = value
+
+    @property
+    def end_dir_z(self):
+        return self._end_dir_z
+    @end_dir_z.setter
+    def end_dir_z(self, value):
+        self._end_dir_z = value
 
     @property
     def points(self):
