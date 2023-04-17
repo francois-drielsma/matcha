@@ -13,7 +13,7 @@ Collection of functions for performing CRT-TPC matching
 
 def get_track_crthit_matches(tracks, crthits, 
                              approach_distance_threshold=50, dca_method='simple',
-                             pca_radius=10, min_points_in_radius=10, 
+                             direction_method='pca', pca_radius=10, min_points_in_radius=10, 
                              trigger_timestamp=None, isdata=False, 
                              save_to_file=False, file_path='.'):
     """
@@ -24,8 +24,10 @@ def get_track_crthit_matches(tracks, crthits,
     best_matches = []
     for track in tracks:
         match_candidates = get_track_match_candidates(
-            track, crthits, approach_distance_threshold, dca_method, 
-            pca_radius, min_points_in_radius, trigger_timestamp, isdata
+            track, crthits, approach_distance_threshold, 
+            dca_method, direction_method,
+            pca_radius, min_points_in_radius, 
+            trigger_timestamp, isdata
         )
         if not match_candidates: continue
         track_best_match = get_best_match(match_candidates)
@@ -36,7 +38,8 @@ def get_track_crthit_matches(tracks, crthits,
     return best_matches
 
 def get_track_match_candidates(track, crthits, 
-                               approach_distance_threshold, dca_method, 
+                               approach_distance_threshold, 
+                               dca_method, direction_method, 
                                pca_radius, min_points_in_radius, 
                                trigger_timestamp, isdata):
     """
@@ -57,7 +60,9 @@ def get_track_match_candidates(track, crthits,
 
     if not track_startpoint.is_valid() or not track_endpoint.is_valid():
         print('Estimating track start/end points and directions using PCA...')
-        track_startpoint, track_endpoint = track.get_endpoints(pca_radius, min_points_in_radius)
+        track_startpoint, track_endpoint = track.get_endpoints(
+            pca_radius, min_points_in_radius, direction_method
+        )
         print('Done')
     else:
         print('Using user-provided track start/end points and directions')
@@ -89,7 +94,6 @@ def get_best_match(match_candidates):
             min_dca = this_dca
             best_match = match
 
-    print('[BESTMATCH] returning best match', best_match)
     return best_match
 
 

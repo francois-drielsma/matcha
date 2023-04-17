@@ -193,7 +193,7 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_endpoints(self, radius, min_points_in_radius):
+    def get_endpoints(self, radius, min_points_in_radius, direction_method):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -230,20 +230,6 @@ class Track:
                 local_density.append(np.sum(depositions[mask]))
             return local_density
 
-        def get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius):
-            pca = PCA(n_components=2)
-            directions = []
-            for point in (start_point, end_point):
-                mask = cdist([point], points)[0] < radius
-                if np.sum(mask) < min_points_in_radius:
-                    directions.append(np.array([-9999.0, -9999.0, -9999.0]))
-                    continue
-                # The first component of the PCA will be the direction
-                # of greatest variance, i.e., a direction vector
-                primary = pca.fit(points[mask]).components_[0]
-                directions.append(primary / np.linalg.norm(primary))
-            return directions[0], directions[1]
-
         points = self.points
         depositions = self.depositions
         pca = PCA(n_components=2)
@@ -258,7 +244,9 @@ class Track:
             candidates = np.flip(candidates, axis=0)
 
         start_point, end_point = candidates[0], candidates[1]
-        angles = get_track_point_angles(start_point, end_point, points, radius, min_points_in_radius)
+        angles = self.get_track_point_angles(start_point, end_point, points, 
+                                             radius, min_points_in_radius, direction_method)
+        print('ANGLES', angles)
 
         start_direction, end_direction = angles[0], angles[1]
 
@@ -288,4 +276,50 @@ class Track:
         )
 
         return track_start_point, track_end_point
+
+    def get_track_point_angles(self, start_point, end_point, points, radius, 
+                               min_points_in_radius, direction_method):
+
+        angles = np.zeros(shape=(2,3))
+
+        if direction_method == 'pca':
+            angles = self.get_track_point_angles_from_pca(
+                start_point, end_point, points, radius, min_points_in_radius
+            )
+        else:
+            raise ValueError('Invalid direction_method in Track.get_endpoints')
+        #pca = PCA(n_components=2)
+        #directions = []
+        #for point in (start_point, end_point):
+        #    mask = cdist([point], points)[0] < radius
+        #    if np.sum(mask) < min_points_in_radius:
+        #        directions.append(np.array([-9999.0, -9999.0, -9999.0]))
+        #        continue
+        #    # The first component of the PCA will be the direction
+        #    # of greatest variance, i.e., a direction vector
+        #    primary = pca.fit(points[mask]).components_[0]
+        #    directions.append(primary / np.linalg.norm(primary))
+        #return directions[0], directions[1]
+
+        return angles
+
+
+    def get_track_point_angles_from_pca(self, 
+                                        start_point, end_point, points, 
+                                        radius, min_points_in_radius):
+        print('IN PCA')
+        pca = PCA(n_components=2)
+        directions = []
+        for point in (start_point, end_point):
+            mask = cdist([point], points)[0] < radius
+            if np.sum(mask) < min_points_in_radius:
+                directions.append(np.array([-9999.0, -9999.0, -9999.0]))
+                continue
+            # The first component of the PCA will be the direction
+            # of greatest variance, i.e., a direction vector
+            primary = pca.fit(points[mask]).components_[0]
+            directions.append(primary / np.linalg.norm(primary))
+        #return directions[0], directions[1]
+        print('RETURNING', directions)
+        return directions
 
