@@ -21,17 +21,24 @@ def get_track_crthit_matches(tracks, crthits,
     endpoint has multiple candidates, select only the one with the smallest
     DCA.
     """
-    best_matches = []
+    track_best_matches = []
     for track in tracks:
-        match_candidates = get_track_match_candidates(
+        track_match_candidates = get_track_match_candidates(
             track, crthits, approach_distance_threshold, 
             dca_method, direction_method,
             pca_radius, min_points_in_radius, 
             trigger_timestamp, isdata
         )
-        if not match_candidates: continue
-        track_best_match = get_best_match(match_candidates)
-        best_matches.append(track_best_match)
+        if not track_match_candidates: continue
+        print('Got', len(track_match_candidates), 'candidates for track ID', track.id)
+        print('CRT hit IDs:', [match.crthit.id for match in track_match_candidates])
+        print('Match candidates for track ID', track.id, ':\n', track_match_candidates)
+        track_best_match = get_track_best_match(track_match_candidates)
+        print('Best match:', track_best_match)
+        track_best_matches.append(track_best_match)
+
+    # Check for CRT hits that are matched to more than one track
+    best_matches = get_crthit_best_matches(track_best_matches)
 
     if save_to_file: write_to_file(tracks, crthits, best_matches, file_path) 
 
@@ -67,23 +74,36 @@ def get_track_match_candidates(track, crthits,
     else:
         print('Using user-provided track start/end points and directions')
 
-    for point in (track_startpoint, track_endpoint):
-        if point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
-        for crt_hit in crthits:
-            dca = calculate_distance_of_closest_approach(
-                point, crt_hit, dca_method, trigger_timestamp, isdata
-            )
-            if dca > approach_distance_threshold: continue
-            match_candidate = MatchCandidate(track, crt_hit, dca)
-            match_candidates.append(match_candidate)
+    for crt_hit in crthits:
+        closest_track_point = get_closest_track_point(crt_hit, track_startpoint, track_endpoint)
+        if closest_track_point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
+        dca = calculate_distance_of_closest_approach(
+            closest_track_point, crt_hit, dca_method, trigger_timestamp, isdata
+        )
+        if dca > approach_distance_threshold: continue
+        match_candidate = MatchCandidate(track, crt_hit, dca)
+        match_candidates.append(match_candidate)
 
     return match_candidates
 
-def get_best_match(match_candidates):
+def get_closest_track_point(crt_hit, track_startpoint, track_endpoint):
+    crt_hit_position = np.array([crt_hit.position_x, crt_hit.position_y, crt_hit.position_z])
+    startpoint = np.array([track_startpoint.position_x, track_startpoint.position_y, track_startpoint.position_z])
+    endpoint   = np.array([track_endpoint.position_x, track_endpoint.position_y, track_endpoint.position_z])
+
+    distance_to_start = np.linalg.norm(crt_hit_position - startpoint)
+    distance_to_end   = np.linalg.norm(crt_hit_position - endpoint)
+
+    if distance_to_start <= distance_to_end:
+        return track_startpoint
+    else:
+        return track_endpoint
+
+def get_track_best_match(match_candidates):
     is_valid_list = all(isinstance(element, MatchCandidate) for element in match_candidates)
     if not is_valid_list:
         raise ValueError("""
-            get_best_match method received an invalid list of match_candidates.
+            get_track_best_match method received an invalid list of match_candidates.
             match_candidates must only contain MatchCandidate class instances.
             """)
     min_dca = np.inf
@@ -96,7 +116,8 @@ def get_best_match(match_candidates):
 
     return best_match
 
-
+def get_crthit_best_matches(track_best_matches):
+    return track_best_matches
 
 
         
