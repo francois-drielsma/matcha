@@ -118,14 +118,14 @@ def write_match_candidates_to_file(match_candidates, file_path):
         raise ValueError("Match candidates list is empty")
 
     data = {
-        'track': [],
-        'crthit': [],
+        'trackID': [],
+        'crthitID': [],
         'distance_of_closest_approach': []
     }
 
     for match_candidate in match_candidates:
-        data['track'].append(match_candidate.track)
-        data['crthit'].append(match_candidate.crthit)
+        data['trackID'].append(match_candidate.track.id)
+        data['crthitID'].append(match_candidate.crthit.id)
         data['distance_of_closest_approach'].append(match_candidate.distance_of_closest_approach)
 
     np.save(file_path+'/match_candidates.npy', data, allow_pickle=True)
