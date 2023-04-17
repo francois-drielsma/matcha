@@ -49,6 +49,14 @@ To install `nbstripout` from within matcha, simply run
 python3 -m pip install matcha[nbstripout]
 ```
 
+Then, to strip the output of a notebook:
+
+```
+nbstripout FILE.ipynb [FILE2.ipynb ...]
+```
+
+where `FILE.ipynb` could be replaced with `visualizer.ipynb`. 
+
 # Usage
 The matching algorithm is called from `match_maker.py`. Before running the matching, however, you'll need to fill the `Track` and `CRTHit` classes. 
 
