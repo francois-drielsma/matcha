@@ -40,6 +40,16 @@ def get_track_crthit_matches(tracks, crthits,
     # Check for CRT hits that are matched to more than one track
     best_matches = get_crthit_best_matches(track_best_matches)
 
+    if len(best_matches) == 0:
+        print('No matches found for this event. Returning default MatchCandidate.')
+        default_track = Track(id=-1, image_id=-1, interaction_id=-1,
+                              points=[], depositions=[])
+        default_crthit = CRTHit(id=-1, t0_sec=-1, t0_ns=-1, t1_ns=-1,
+                                position_x=-999, position_y=-999, position_z=-999)
+        default_dca = -999
+        # Return a list for iterability 
+        return [MatchCandidate(default_track, default_crthit, default_dca)]
+
     if save_to_file: write_to_file(tracks, crthits, best_matches, file_path) 
 
     return best_matches
