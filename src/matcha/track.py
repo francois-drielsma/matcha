@@ -246,7 +246,6 @@ class Track:
         start_point, end_point = candidates[0], candidates[1]
         angles = self.get_track_point_angles(start_point, end_point, points, 
                                              radius, min_points_in_radius, direction_method)
-        print('ANGLES', angles)
 
         start_direction, end_direction = angles[0], angles[1]
 
@@ -307,7 +306,6 @@ class Track:
     def get_track_point_angles_from_pca(self, 
                                         start_point, end_point, points, 
                                         radius, min_points_in_radius):
-        print('IN PCA')
         pca = PCA(n_components=2)
         directions = []
         for point in (start_point, end_point):
@@ -319,7 +317,5 @@ class Track:
             # of greatest variance, i.e., a direction vector
             primary = pca.fit(points[mask]).components_[0]
             directions.append(primary / np.linalg.norm(primary))
-        #return directions[0], directions[1]
-        print('RETURNING', directions)
         return directions
 

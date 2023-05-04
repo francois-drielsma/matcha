@@ -30,11 +30,7 @@ def get_track_crthit_matches(tracks, crthits,
             trigger_timestamp, isdata
         )
         if not track_match_candidates: continue
-        print('Got', len(track_match_candidates), 'candidates for track ID', track.id)
-        print('CRT hit IDs:', [match.crthit.id for match in track_match_candidates])
-        print('Match candidates for track ID', track.id, ':\n', track_match_candidates)
         track_best_match = get_track_best_match(track_match_candidates)
-        print('Best match:', track_best_match)
         track_best_matches.append(track_best_match)
 
     # Check for CRT hits that are matched to more than one track
@@ -76,13 +72,9 @@ def get_track_match_candidates(track, crthits,
     )
 
     if not track_startpoint.is_valid() or not track_endpoint.is_valid():
-        print('Estimating track start/end points and directions using PCA...')
         track_startpoint, track_endpoint = track.get_endpoints(
             pca_radius, min_points_in_radius, direction_method
         )
-        print('Done')
-    else:
-        print('Using user-provided track start/end points and directions')
 
     for crt_hit in crthits:
         closest_track_point = get_closest_track_point(crt_hit, track_startpoint, track_endpoint)
