@@ -49,6 +49,7 @@ def write_tracks_to_file(tracks, file_path):
         data['depositions'].append(track.depositions)
     
     np.save(file_path+'/tracks.npy', data, allow_pickle=True)
+    print('Track data saved to', file_path+'/tracks.npy')
 
 def write_crthits_to_file(crthits, file_path):
     """
@@ -97,6 +98,7 @@ def write_crthits_to_file(crthits, file_path):
         data['tagger'].append(crthit.tagger)
     
     np.save(file_path+'/crthits.npy', data, allow_pickle=True)
+    print('CRTHit data saved to', file_path+'/crthits.npy')
 
 def write_match_candidates_to_file(match_candidates, file_path):
     """
@@ -115,7 +117,8 @@ def write_match_candidates_to_file(match_candidates, file_path):
         None.
     """
     if not match_candidates:
-        raise ValueError("Match candidates list is empty")
+        print('MatchCandidates list is empty. No output file will be saved.')
+        return
 
     data = {
         'trackID': [],
@@ -129,16 +132,15 @@ def write_match_candidates_to_file(match_candidates, file_path):
         data['distance_of_closest_approach'].append(match_candidate.distance_of_closest_approach)
 
     np.save(file_path+'/match_candidates.npy', data, allow_pickle=True)
+    print('MatchCandidate data saved to', file_path+'/match_candidates.npy')
 
 def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
         file_path = ''
-    print('Saving matcha class files to', file_path)
     write_tracks_to_file(tracks, file_path)
     write_crthits_to_file(crthits, file_path)
     write_match_candidates_to_file(match_candidates, file_path)
-    print('Done saving')
 
 
 
