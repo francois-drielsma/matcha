@@ -49,6 +49,6 @@ def simple_dca(track_point, crt_hit, trigger_timestamp, isdata):
     dca = numerator/denominator
 
     if np.isnan(dca):
-        dca = 1e6
+        dca = np.inf
 
     return dca
