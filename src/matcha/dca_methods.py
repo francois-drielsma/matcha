@@ -46,9 +46,9 @@ def simple_dca(track_point, crt_hit, trigger_timestamp, isdata):
     numerator = np.linalg.norm(np.cross((crt_hit_position - track_endpoint), (crt_hit_position - point_on_line)))
     denominator = np.linalg.norm(track_point_direction)
 
-    dca = numerator/denominator
+    if denominator == 0:
+        return np.inf
 
-    if np.isnan(dca):
-        dca = np.inf
+    dca = numerator/denominator
 
     return dca
