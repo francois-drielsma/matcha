@@ -47,4 +47,8 @@ def simple_dca(track_point, crt_hit, trigger_timestamp, isdata):
     denominator = np.linalg.norm(track_point_direction)
 
     dca = numerator/denominator
+
+    if np.isnan(dca):
+        dca = 1e6
+
     return dca
