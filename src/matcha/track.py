@@ -11,37 +11,32 @@ class Track:
     Class for storing TPC track information. The stored tracks are
     assumed to be muon candidates for CRT-TPC matching.
 
-    Attributes
-    ----------
-    id : int, required
-        Identifier for Track instance
-    image_id : int
-        Identifier for the detector image, or "event." Default: -1
-    interaction_id : int
-        Identifier for the parent interaction, or "vertex." Default: -1
-    points : array-like (N, 3)
-        List of 3D points comprising the track. Default: []
-    depositions : array-like (N, 1)
-        List of energy deposition values for each point in rescaled ADC units. Default: []
-    start_x : float
-        x-position of the first track point in cm. Default: None
-    start_y : float
-        y-position of the first track point in cm. Default: None
-    start_z : float
-        z-position of the first track point in cm. Default: None
-    end_x : float
-        x-position of the last track point in cm. Default: None
-    end_y : float
-        y-position of the last track point in cm. Default: None
-    end_z : float
-        z-position of the last track point in cm. Default: None
-    Methods
-    -------
-    get_endpoints(points, depositions, radius=20):
-        Calculates the start/end points and angles of the track using local charge
-        density to guess at the Bragg peak.
-        Return: list of two TrackPoint instances containing the start
-        and end point positions and unit vectors.
+	Attributes:
+        id (int): Identifier for Track instance.
+        image_id (int): Identifier for the detector image, or "event". 
+        interaction_id (int): Identifier for the parent interaction, or "vertex". 
+        points (array-like): List of 3D points comprising the track. 
+        depositions (array-like): List of energy deposition values for each point 
+                                  in rescaled ADC units.
+        start_x (float): x-position of the first track point in cm. Default: None.
+        start_y (float): y-position of the first track point in cm. Default: None.
+        start_z (float): z-position of the first track point in cm. Default: None.
+        start_dir_x (float): x-direction of the first track point. Default: None.
+        start_dir_y (float): y-direction of the first track point. Default: None.
+        start_dir_z (float): z-direction of the first track point. Default: None.
+        end_x (float): x-position of the last track point in cm. Default: None.
+        end_y (float): y-position of the last track point in cm. Default: None.
+        end_z (float): z-position of the last track point in cm. Default: None.
+        end_dir_x (float): x-direction of the first track point. Default: None.
+        end_dir_y (float): y-direction of the first track point. Default: None.
+        end_dir_z (float): z-direction of the first track point. Default: None.
+
+    Methods:
+        get_endpoints(points, depositions, radius=20):
+            Calculates the start and end point positions and directions of the 
+                track using PCA if (and only if) the user does not provide them. 
+            Returns: list of two TrackPoint instances containing the start
+            and end point positions and unit vectors.
     """
     def __init__(self, id, image_id, interaction_id, 
                  points, depositions,
@@ -193,24 +188,25 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_endpoints(self, radius, min_points_in_radius, direction_method):
+    def get_endpoints(self, direction_method='pca', radius=10, min_points_in_radius=10):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
 
-        Parameters
-        ----------
-        radius : int, optional
-            Radius (in cm) used to determine a neighborhood of points around
-            a candidate start/end point for PCA calculation. Default: 10
-        min_points_in_radius : int, optional
-            Minimum number of points in the neighborhood of a candidate 
-            start/end point in order for PCA to be performed. Default: 10
+		Parameters:
+            direction_method (str, optional): Method for determining the track 
+                                              direction. Default: 'pca'.
+            radius (int, optional): Radius (in cm) used to determine a neighborhood 
+                                    of points around a candidate start/end point 
+                                    for PCA calculation. Default: 10.
+            min_points_in_radius (int, optional): Minimum number of points in the 
+                                                  neighborhood of a candidate start/end 
+                                                  point in order for PCA to be performed. 
+                                                  Default: 10.
 
-        Return
-        ------
-        A list with two numpy arrays of shape (3,) containing the start
-        and end point (respectively).
+        Returns:
+            list: A list containing two numpy arrays of shape (3,), representing 
+                  the start and end points of the track, respectively.
         """
         if not self.points.any():
             raise ValueError('Track points attribute must be filled before calling get_endpoints')
@@ -218,6 +214,28 @@ class Track:
             raise ValueError('Track depositions attribute must be filled before calling get_endpoints')
 
         def get_local_density(candidates, points, depositions, radius, min_points_in_radius):
+            """
+            Calculates the local density around each candidate point based on 
+            the neighboring points.
+
+            Parameters:
+                candidates (numpy.ndarray): A numpy array of shape (N, 3) 
+                                            containing the candidate points.
+                points (numpy.ndarray): A numpy array of shape (M, 3) 
+                                        containing all the points.
+                depositions (numpy.ndarray): A numpy array of shape (M,) 
+                                             containing the energy deposition 
+                                             values for each point.
+                radius (float): Radius (in units of distance) used to define 
+                                the neighborhood around each candidate point.
+                min_points_in_radius (int): Minimum number of points in the 
+                                            neighborhood of a candidate point 
+                                            for density calculation.
+
+            Returns:
+                numpy.ndarray: A numpy array of shape (N,) containing the local 
+                density around each candidate point.
+            """
             local_density = []
             for candidate in candidates:
                 mask = cdist([candidate], points)[0] < radius
@@ -278,7 +296,26 @@ class Track:
 
     def get_track_point_angles(self, start_point, end_point, points, radius, 
                                min_points_in_radius, direction_method):
+        """
+		Parameters:
+            start_point (numpy.ndarray): A numpy array of shape (3,) representing 
+                                         the start point of the track.
+            end_point (numpy.ndarray): A numpy array of shape (3,) representing 
+                                       the end point of the track.
+            points (numpy.ndarray): A numpy array of shape (N, 3) containing the 
+                                    track points.
+            radius (int): Radius (in cm) used to determine a neighborhood of points 
+                          around a candidate start/end point for angle calculation.
+            min_points_in_radius (int): Minimum number of points in the neighborhood 
+                                        of a candidate start/end point in order for 
+                                        angle calculation to be performed.
+            direction_method (str): Method for determining the track direction.
 
+        Returns:
+            numpy.ndarray: A numpy array of shape (2, 3) containing the angles 
+                           of the track points with respect to the start and 
+                           end points of the track.
+        """
         angles = np.zeros(shape=(2,3))
 
         if direction_method == 'pca':
@@ -286,19 +323,7 @@ class Track:
                 start_point, end_point, points, radius, min_points_in_radius
             )
         else:
-            raise ValueError('Invalid direction_method in Track.get_endpoints')
-        #pca = PCA(n_components=2)
-        #directions = []
-        #for point in (start_point, end_point):
-        #    mask = cdist([point], points)[0] < radius
-        #    if np.sum(mask) < min_points_in_radius:
-        #        directions.append(np.array([-9999.0, -9999.0, -9999.0]))
-        #        continue
-        #    # The first component of the PCA will be the direction
-        #    # of greatest variance, i.e., a direction vector
-        #    primary = pca.fit(points[mask]).components_[0]
-        #    directions.append(primary / np.linalg.norm(primary))
-        #return directions[0], directions[1]
+            raise ValueError('Invalid direction_method in Track.get_track_point_angles')
 
         return angles
 
@@ -306,6 +331,27 @@ class Track:
     def get_track_point_angles_from_pca(self, 
                                         start_point, end_point, points, 
                                         radius, min_points_in_radius):
+        """
+        Calculates the angles of the track points with respect to the start 
+        and end point directions using PCA.
+
+        Parameters:
+            start_point (numpy.ndarray): A numpy array of shape (3,) 
+                                         representing the start point of the track.
+            end_point (numpy.ndarray): A numpy array of shape (3,) 
+                                       representing the end point of the track.
+            points (numpy.ndarray): A numpy array of shape (N, 3) containing the 
+                                    track points.
+            radius (int): Radius (in cm) used to determine a neighborhood of points 
+                          around a candidate start/end point for PCA calculation.
+            min_points_in_radius (int): Minimum number of points in the neighborhood 
+                                        of a candidate start/end point in order for 
+                                        PCA calculation to be performed.
+
+        Returns:
+            numpy.ndarray: A numpy array of shape (2, 3) where each row corresponds 
+                           to the start and end point directions, respectively.
+        """
         pca = PCA(n_components=2)
         directions = []
         for point in (start_point, end_point):
