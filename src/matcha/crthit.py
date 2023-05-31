@@ -3,18 +3,17 @@ class CRTHit:
     Class for storing CRT hit information
 
     Attributes:
-        id (int), required: Unique identifier for CRTHit instance. 
-        t0_sec (float), required: Seconds-only part of the timestamp. 
-        t0_ns (float), required: Timestamp of the CRT hit start time in nanoseconds 
-                                 from White Rabbit. 
+        id (int): Unique identifier for CRTHit instance. 
+        t0_sec (float): Seconds-only part of the timestamp. 
+        t0_ns (float): Timestamp of the CRT hit start time in nanoseconds from White Rabbit. 
         t1_ns (float): Timestamp of the CRT hit with respect to the trigger time. 
-        position_x (float), required: Position in x-direction (cm). 
-        position_y (float), required: Position in y-direction (cm). 
-        position_z (float), required: Position in z-direction (cm). 
-        error_x (float): Uncertainty in x-direction (cm). Default: 0
-        error_y (float): Uncertainty in y-direction (cm). Default: 0
-        error_z (float): Uncertainty in z-direction (cm). Default: 0
-        total_pe (float): Number of photoelectrons (PE) in the CRT hit. Default: -1
+        position_x (float): Position in x-direction (cm). 
+        position_y (float): Position in y-direction (cm). 
+        position_z (float): Position in z-direction (cm). 
+        error_x (float, optional): Uncertainty in x-direction (cm). Default: 0
+        error_y (float, optional): Uncertainty in y-direction (cm). Default: 0
+        error_z (float, optional): Uncertainty in z-direction (cm). Default: 0
+        total_pe (float, optional): Number of photoelectrons (PE) in the CRT hit. Default: -1
         plane (int, optional): Integer identifying CRT wall. Default: -1
                                (TODO Find documentation on this)
         tagger (string, optional): String identifying CRT wall. Default: ''
@@ -25,8 +24,8 @@ class CRTHit:
             Get CRTHit time in microseconds from configured t0 values and
             trigger timestamp (only if running on data).
 
-    Raises: 
-        ValueError: If isdata=True and trigger_timestamp is not provided.
+        Raises: 
+            ValueError: If isdata=True and trigger_timestamp is not provided.
         
     """
     def __init__(self, id, t0_sec, t0_ns, t1_ns, 
