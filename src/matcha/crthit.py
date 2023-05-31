@@ -2,40 +2,32 @@ class CRTHit:
     """
     Class for storing CRT hit information
 
-    Attributes
-    ----------
-    id : int, required
-        Unique identifier for CRTHit
-    t0_sec : float
-        Seconds-only part of the timestamp. Default: 0
-    t0_ns : float
-        Timestamp of the CRT hit start time in nanoseconds from White Rabbit. Default: 0
-    t1_ns : float
-        Timestamp of the CRT hit with respect to the trigger time. Default: 0
-    position_x : float 
-        Position in x-direction (cm). Default: 0
-    error_x : float
-        Uncertainty in x-direction (cm). Default: 0
-    position_y : float 
-        Position in y-direction (cm). Default: 0
-    error_y : float
-        Uncertainty in y-direction (cm) Default: 0
-    position_z : float 
-        Position in z-direction (cm) Default: 0
-    error_z : float
-        Uncertainty in z-direction (cm) Default: 0
-    total_pe : float
-        Number of photoelectrons (PE) in the CRT hit. Default: 0
-    plane: int, optional
-        Integer identifying CRT wall (TODO Find documentation on this)
-    tagger: string, optional
-        String identifying CRT wall (TODO Find documentation on this)
+    Attributes:
+        id (int), required: Unique identifier for CRTHit instance. 
+        t0_sec (float), required: Seconds-only part of the timestamp. 
+        t0_ns (float), required: Timestamp of the CRT hit start time in nanoseconds 
+                                 from White Rabbit. 
+        t1_ns (float): Timestamp of the CRT hit with respect to the trigger time. 
+        position_x (float), required: Position in x-direction (cm). 
+        position_y (float), required: Position in y-direction (cm). 
+        position_z (float), required: Position in z-direction (cm). 
+        error_x (float): Uncertainty in x-direction (cm). Default: 0
+        error_y (float): Uncertainty in y-direction (cm). Default: 0
+        error_z (float): Uncertainty in z-direction (cm). Default: 0
+        total_pe (float): Number of photoelectrons (PE) in the CRT hit. Default: -1
+        plane (int, optional): Integer identifying CRT wall. Default: -1
+                               (TODO Find documentation on this)
+        tagger (string, optional): String identifying CRT wall. Default: ''
+                                   (TODO Find documentation on this)
 
-    Methods
-    -------
-    get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
-        Get CRTHit time in microseconds from configured t0 values and
-        trigger timestamp (only if running on data)
+    Methods:
+        get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
+            Get CRTHit time in microseconds from configured t0 values and
+            trigger timestamp (only if running on data).
+
+    Raises: 
+        ValueError: If isdata=True and trigger_timestamp is not provided.
+        
     """
     def __init__(self, id, t0_sec, t0_ns, t1_ns, 
                  position_x, position_y, position_z, 
@@ -154,20 +146,17 @@ class CRTHit:
     def tagger(self, value):
         self._tagger = value
 
-    def get_time_in_microseconds(self, trigger_timestamp, isdata):
+    def get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
         """
-        CRTHit class method to retreive the "actual" time in microseconds.
+		This method is a Python port of the GetCRTTime function in the CRTUtils of icaruscode.
 
-        This function is essentially a python port of the GetCRTTime function 
-        in the CRTUtils of icaruscode.
+        Parameters:
+            trigger_timestamp (float, optional): Timestamp of the trigger. Needed for data events but not MC,
+                where we assume a timestamp of 0. Default: None
+            isdata (bool, optional): Boolean flag for running on data as opposed to MC. Default: False
 
-        Parameters
-        ----------
-        trigger_timestamp : float, optional
-            Timestamp of the trigger. Needed for data events but not MC, where 
-            we assume a timestamp of 0. Default: None
-        isdata : bool, optional
-            Boolean flag for running on data as opposed to MC. Default: False
+        Returns:
+            float: The "actual" time in microseconds.
         """
         import math
         crt_time = math.inf
