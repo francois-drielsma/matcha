@@ -160,6 +160,14 @@ def get_closest_track_point(crt_hit, track_startpoint, track_endpoint):
     Function to determine whether the Track start point or end point is closer
     to the CRTHit. Avoids mismatches where a Track end point is matched to a 
     CRTHit that is not compatible with it.
+
+    Parameters:
+        crt_hit (CRTHit): CRTHit instance.
+        track_startpoint (TrackPoint): Track start point.
+        track_endpoint (TrackPoint): Track end point.
+
+    Returns:
+        TrackPoint: Which of the two points is closest to the CRTHit.
     """
 
     crt_hit_position = np.array([crt_hit.position_x, crt_hit.position_y, crt_hit.position_z])
@@ -178,6 +186,11 @@ def get_track_best_match(match_candidates):
     """
     Determine which MatchCandidate has the minimum DCA for a list of MatchCandidates.
 
+    Parameters:
+        match_candidates (list): List of match_candidates.
+
+    Returns:
+        MatchCandidate: MatchCandidate instance with the minimum DCA for each Track.
     """
     is_valid_list = all(isinstance(element, MatchCandidate) for element in match_candidates)
     if not is_valid_list:
@@ -196,6 +209,9 @@ def get_track_best_match(match_candidates):
     return best_match
 
 def get_crthit_best_matches(track_best_matches):
+    """
+    Deprecated, should be removed.
+    """
     return track_best_matches
 
         
