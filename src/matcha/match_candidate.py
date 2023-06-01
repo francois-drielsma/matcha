@@ -6,19 +6,16 @@ class MatchCandidate:
     """
     Represents a candidate match between a Track object and a CRTHit object.
 
-    Attributes
-    ----------
-    track : matcha.Track
-        The Track object in the candidate match.
-    crthit : matcha.CRTHit
-        The CRTHit object in the candidate match.
-    distance_of_closest_approach : float, optional
-        The distance of closest approach between the Track and CRTHit objects
-        in cm. Default: 0.
+    Attributes:
+        track (Track): The Track instance in the candidate match.
+        crthit (CRTHit): The CRTHit instance in the candidate match.
+        distance_of_closest_approach (float, optional): The distance of closest 
+                                                        approach between the Track 
+                                                        and CRTHit objects in cm. 
+                                                        Default: 0.
 
-    Methods
-    -------
-    None
+    Methods:
+        None
     """
     def __init__(self, track, crthit, distance_of_closest_approach):
         if not isinstance(track, Track):
