@@ -18,18 +18,18 @@ class Track:
         points (array-like): List of 3D points comprising the track. 
         depositions (array-like): List of energy deposition values for each point 
                                   in rescaled ADC units.
-        start_x (float): x-position of the first track point in cm. Default: None.
-        start_y (float): y-position of the first track point in cm. Default: None.
-        start_z (float): z-position of the first track point in cm. Default: None.
-        start_dir_x (float): x-direction of the first track point. Default: None.
-        start_dir_y (float): y-direction of the first track point. Default: None.
-        start_dir_z (float): z-direction of the first track point. Default: None.
-        end_x (float): x-position of the last track point in cm. Default: None.
-        end_y (float): y-position of the last track point in cm. Default: None.
-        end_z (float): z-position of the last track point in cm. Default: None.
-        end_dir_x (float): x-direction of the first track point. Default: None.
-        end_dir_y (float): y-direction of the first track point. Default: None.
-        end_dir_z (float): z-direction of the first track point. Default: None.
+        start_x (float, optional): x-position of the first track point in cm. Default: None.
+        start_y (float, optional): y-position of the first track point in cm. Default: None.
+        start_z (float, optional): z-position of the first track point in cm. Default: None.
+        start_dir_x (float, optional): x-direction of the first track point. Default: None.
+        start_dir_y (float, optional): y-direction of the first track point. Default: None.
+        start_dir_z (float, optional): z-direction of the first track point. Default: None.
+        end_x (float, optional): x-position of the last track point in cm. Default: None.
+        end_y (float, optional): y-position of the last track point in cm. Default: None.
+        end_z (float, optional): z-position of the last track point in cm. Default: None.
+        end_dir_x (float, optional): x-direction of the first track point. Default: None.
+        end_dir_y (float, optional): y-direction of the first track point. Default: None.
+        end_dir_z (float, optional): z-direction of the first track point. Default: None.
 
     Methods:
         get_endpoints(points, depositions, radius=20):
