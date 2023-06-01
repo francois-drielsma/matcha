@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
 from .track_point import TrackPoint
+import matcha.defaults as defaults
 
 # TODO list:
 #   - What does "rescaled ADC units mean? (from Particle class)
@@ -188,7 +189,9 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_endpoints(self, direction_method='pca', radius=10, min_points_in_radius=10):
+    def get_endpoints(self, direction_method = defaults.DEFAULT_DIR_METHOD, 
+                      radius                 = defaults.DEFAULT_PCA_RADIUS, 
+                      min_points_in_radius   = defaults.DEFAULT_POINTS_IN_RADIUS):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
@@ -294,8 +297,10 @@ class Track:
 
         return track_start_point, track_end_point
 
-    def get_track_point_angles(self, start_point, end_point, points, radius, 
-                               min_points_in_radius, direction_method):
+    def get_track_point_angles(self, start_point, end_point, points, 
+                               radius               = defaults.DEFAULT_PCA_RADIUS, 
+                               min_points_in_radius = defaults.DEFAULT_POINTS_IN_RADIUS,
+                               direction_method     = defaults.DEFAULT_DIR_METHOD):
         """
 		Parameters:
             start_point (numpy.ndarray): A numpy array of shape (3,) representing 
@@ -328,9 +333,9 @@ class Track:
         return angles
 
 
-    def get_track_point_angles_from_pca(self, 
-                                        start_point, end_point, points, 
-                                        radius, min_points_in_radius):
+    def get_track_point_angles_from_pca(self, start_point, end_point, points, 
+                                        radius               = defaults.DEFAULT_PCA_RADIUS, 
+                                        min_points_in_radius = defaults.DEFAULT_POINTS_IN_RADIUS):
         """
         Calculates the angles of the track points with respect to the start 
         and end point directions using PCA.
