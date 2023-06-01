@@ -5,13 +5,14 @@ from .match_candidate import MatchCandidate
 from .writer import write_to_file
 from .dca_methods import calculate_distance_of_closest_approach, simple_dca
 import matcha.defaults as defaults
+from matcha.loader import load_config
 import numpy as np
 
 """
 Main functions for performing CRT-TPC matching
 """
 
-def get_track_crthit_matches(tracks, crthits, 
+def get_track_crthit_matches(tracks, crthits, config_path='./config.yaml',
                              approach_distance_threshold = defaults.DEFAULT_DCA_THRESHOLD,
                              dca_method                  = defaults.DEFAULT_DCA_METHOD,
                              direction_method            = defaults.DEFAULT_DIR_METHOD, 
@@ -56,6 +57,8 @@ def get_track_crthit_matches(tracks, crthits,
         list: List of MatchCandidates, at most one per Track, corresponding 
               to the MatchCandidate with the minimum DCA for that Track.
     """
+
+    config = load_config(config_path)
     track_best_matches = []
     for track in tracks:
         track_match_candidates = get_track_match_candidates(
