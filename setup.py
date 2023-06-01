@@ -19,6 +19,7 @@ setup(
                       'pandas', 
                       'plotly', 
                       'matplotlib',
+                      'pyyaml',
     ],
     extras_require={'nbstripout': ['nbstripout']},
     python_requires='>=3.6',
