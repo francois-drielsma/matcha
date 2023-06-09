@@ -39,7 +39,7 @@ class Track:
             and end point positions and unit vectors.
     """
     def __init__(self, id, image_id, interaction_id, 
-                 points, depositions,
+                 points, depositions, true_matched_crthit_id=-1,
                  start_x=None, start_y=None, start_z=None, 
                  start_dir_x=None, start_dir_y=None, start_dir_z=None, 
                  end_x=None, end_y=None, end_z=None,
@@ -50,6 +50,7 @@ class Track:
         self._interaction_id = interaction_id
         self._points = points
         self._depositions = depositions
+        self._true_matched_crthit_id = true_matched_crthit_id
         self._start_x = start_x
         self._start_y = start_y
         self._start_z = start_z
@@ -89,6 +90,20 @@ class Track:
     @interaction_id.setter
     def interaction_id(self, value):
         self._interaction_id = value
+
+    @property 
+    def depositions(self):
+        return self._depositions
+    @depositions.setter
+    def depositions(self, value):
+        self._depositions = value
+
+    @property 
+    def true_matched_crthit_id(self):
+        return self._true_matched_crthit_id
+    @true_matched_crthit_id.setter
+    def true_matched_crthit_id(self, value):
+        self._true_matched_crthit_id = value
 
     @property
     def start_x(self):
@@ -180,13 +195,6 @@ class Track:
     @points.setter
     def points(self, value):
         self._points = value
-
-    @property 
-    def depositions(self):
-        return self._depositions
-    @depositions.setter
-    def depositions(self, value):
-        self._depositions = value
 
     def get_endpoints(self, pca_params):
         """
