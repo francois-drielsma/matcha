@@ -1,0 +1,16 @@
+match_making_parameters:
+  matching_method: 'dca'
+  trigger_timestamp: None
+  isdata: False
+  save_to_file: True
+  file_path: '.'
+
+dca_parameters:
+  threshold: 50
+  method: 'simple'
+  
+pca_parameters:
+  radius: 10
+  min_points_in_radius: 10
+  direction_method: 'pca'
+
