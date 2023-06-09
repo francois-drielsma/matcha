@@ -189,23 +189,13 @@ class Track:
     def depositions(self, value):
         self._depositions = value
 
-    def get_endpoints(self, direction_method = defaults.DEFAULT_DIR_METHOD, 
-                      radius                 = defaults.DEFAULT_PCA_RADIUS, 
-                      min_points_in_radius   = defaults.DEFAULT_POINTS_IN_RADIUS):
+    def get_endpoints(self, pca_params):
         """
         Calculates the start/end points of the track using local charge
         density to guess at the Bragg peak.
 
 		Parameters:
-            direction_method (str, optional): Method for determining the track 
-                                              direction. Default: 'pca'.
-            radius (int, optional): Radius (in cm) used to determine a neighborhood 
-                                    of points around a candidate start/end point 
-                                    for PCA calculation. Default: 10.
-            min_points_in_radius (int, optional): Minimum number of points in the 
-                                                  neighborhood of a candidate start/end 
-                                                  point in order for PCA to be performed. 
-                                                  Default: 10.
+            pca_params (dict): Dictionary of PCA parameters from loaded matcha config file
 
         Returns:
             list: A list containing two numpy arrays of shape (3,), representing 
@@ -215,6 +205,10 @@ class Track:
             raise ValueError('Track points attribute must be filled before calling get_endpoints')
         if not self.depositions.any():
             raise ValueError('Track depositions attribute must be filled before calling get_endpoints')
+
+        radius = pca_params['radius']
+        min_points_in_radius = pca_params['min_points_in_radius']
+        direction_method = pca_params['direction_method']
 
         def get_local_density(candidates, points, depositions, radius, min_points_in_radius):
             """
@@ -298,9 +292,7 @@ class Track:
         return track_start_point, track_end_point
 
     def get_track_point_angles(self, start_point, end_point, points, 
-                               radius               = defaults.DEFAULT_PCA_RADIUS, 
-                               min_points_in_radius = defaults.DEFAULT_POINTS_IN_RADIUS,
-                               direction_method     = defaults.DEFAULT_DIR_METHOD):
+                               radius, min_points_in_radius, direction_method):
         """
 		Parameters:
             start_point (numpy.ndarray): A numpy array of shape (3,) representing 
@@ -334,8 +326,7 @@ class Track:
 
 
     def get_track_point_angles_from_pca(self, start_point, end_point, points, 
-                                        radius               = defaults.DEFAULT_PCA_RADIUS, 
-                                        min_points_in_radius = defaults.DEFAULT_POINTS_IN_RADIUS):
+                                        radius, min_points_in_radius):
         """
         Calculates the angles of the track points with respect to the start 
         and end point directions using PCA.

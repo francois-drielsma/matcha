@@ -1,3 +1,4 @@
+import os
 from .track import Track
 from .track_point import TrackPoint
 from .crthit import CRTHit
@@ -8,20 +9,15 @@ import matcha.defaults as defaults
 from matcha.loader import load_config
 import numpy as np
 
+# Set project root directory two directories up
+MATCHA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_CONFIG_PATH = "{:s}/config/default.yaml".format(MATCHA_DIR)
+
 """
 Main functions for performing CRT-TPC matching
 """
 
-def get_track_crthit_matches(tracks, crthits, config_path='./config.yaml',
-                             approach_distance_threshold = defaults.DEFAULT_DCA_THRESHOLD,
-                             dca_method                  = defaults.DEFAULT_DCA_METHOD,
-                             direction_method            = defaults.DEFAULT_DIR_METHOD, 
-                             pca_radius                  = defaults.DEFAULT_PCA_RADIUS,
-                             min_points_in_radius        = defaults.DEFAULT_POINTS_IN_RADIUS, 
-                             trigger_timestamp           = defaults.DEFAULT_TRIGGER_TIMESTAMP, 
-                             isdata                      = defaults.DEFAULT_ISDATA,
-                             save_to_file                = defaults.DEFAULT_SAVE_TO_FILE, 
-                             file_path                   = defaults.DEFAULT_FILE_PATH):
+def get_track_crthit_matches(tracks, crthits, config_path=DEFAULT_CONFIG_PATH):
     """
     Top-level match-making function that returns a list of MatchCandidates given
     a list of Track and CRTHit instances.
@@ -29,29 +25,7 @@ def get_track_crthit_matches(tracks, crthits, config_path='./config.yaml',
     Parameters:
         tracks (list): List of matcha.Track instances to be matched.
         crthits (list): List of matcha.CRTHit instances to be matched.
-        approach_distance_threshold (float, optional): Distance threshold in centimeters for 
-                                                       matching Tracks to CRTHits based on 
-                                                       distance of closest approach. Default: 50
-        dca_method (str, optional): Method to use for calculating distance of closest approach
-                                    between the projection of a Track and a CRTHit. 
-                                    Default: 'simple'.
-        direction_method (str, optional): Method to use for determining Track end point
-                                          directions if the user does not provide them. 
-                                          Default: 'pca'.
-        pca_radius (int, optional): Number of points around Track end points to 
-                                    be used for PCA calculation. Default: 10.
-        min_points_in_radius (int, optional): Minimum number of points to be contained 
-                                              in pca_radius. Default: 10.
-        trigger_timestamp (float, optional): Trigger timestamp for the analyzed event. 
-                                             Necessary when running on data, optional 
-                                             for simulation. Default: False.
-        isdata (bool): Whether to run on simulation or data. Deteremines which value of
-                       drift velocity to use when getting CRT hit time. Default: False
-        save_to_file (bool, optional): Flag stating whether to save a list of Tracks,
-                                       CRTHits, and MatchCandidates to a NumPy file for
-                                       offline analysis. Default: False.
-        file_path (str, optional): File save path to use if save_to_file is True.
-                                   Default: '.' (current working directory).
+        config_path (str): Path to matcha config file
 
     Returns:
         list: List of MatchCandidates, at most one per Track, corresponding 
@@ -59,14 +33,10 @@ def get_track_crthit_matches(tracks, crthits, config_path='./config.yaml',
     """
 
     config = load_config(config_path)
+
     track_best_matches = []
     for track in tracks:
-        track_match_candidates = get_track_match_candidates(
-            track, crthits, approach_distance_threshold, 
-            dca_method, direction_method,
-            pca_radius, min_points_in_radius, 
-            trigger_timestamp, isdata
-        )
+        track_match_candidates = get_track_match_candidates(track, crthits, config)
         if not track_match_candidates: continue
         track_best_match = get_track_best_match(track_match_candidates)
         track_best_matches.append(track_best_match)
@@ -90,43 +60,24 @@ def get_track_crthit_matches(tracks, crthits, config_path='./config.yaml',
 
     return best_matches
 
-def get_track_match_candidates(track, crthits, 
-                               approach_distance_threshold = defaults.DEFAULT_DCA_THRESHOLD,
-                               dca_method                  = defaults.DEFAULT_DCA_METHOD,
-                               direction_method            = defaults.DEFAULT_DIR_METHOD, 
-                               pca_radius                  = defaults.DEFAULT_PCA_RADIUS,
-                               min_points_in_radius        = defaults.DEFAULT_POINTS_IN_RADIUS, 
-                               trigger_timestamp           = defaults.DEFAULT_TRIGGER_TIMESTAMP, 
-                               isdata                      = defaults.DEFAULT_ISDATA):
+def get_track_match_candidates(track, crthits, config):
     """
-    For each Track, loop over CRT hits and calculate DCA for each. If DCA falls
+    Given a Track, loop over CRT hits and calculate DCA for each. If DCA falls
     below threshold, create a MatchCandidate instance. 
 
     Parameters:
-        approach_distance_threshold (float, optional): Distance threshold in centimeters for 
-                                                       matching Tracks to CRTHits based on 
-                                                       distance of closest approach. Default: 50
-        dca_method (str, optional): Method to use for calculating distance of closest approach
-                                    between the projection of a Track and a CRTHit. 
-                                    Default: 'simple'.
-        direction_method (str, optional): Method to use for determining Track end point
-                                          directions if the user does not provide them. 
-                                          Default: 'pca'.
-        pca_radius (int, optional): Number of points around Track end points to 
-                                    be used for PCA calculation. Default: 10.
-        min_points_in_radius (int, optional): Minimum number of points to be contained 
-                                              in pca_radius. Default: 10.
-        trigger_timestamp (float, optional): Trigger timestamp for the analyzed event. 
-                                             Necessary when running on data, optional 
-                                             for simulation. Default: False.
-        isdata (bool): Whether to run on simulation or data. Deteremines which value of
-                       drift velocity to use when getting CRT hit time. Default: False
+        track (Track): matcha.Track instances to be matched.
+        crthits (list): List of matcha.CRTHit instances to be matched.
+        config (dict): Dictionary from parsing matcha config file
 
     Returns: 
         list: list of MatchCandidates with DCA below approach_distance_threshold.
     """
 
     match_candidates = []
+    dca_parameters = config['dca_parameters']
+    pca_parameters = config['pca_parameters']
+    approach_distance_threshold = dca_parameters['threshold']
 
     # Initialize start and end points with user-provided information.
     track_startpoint = TrackPoint(track_id=track.id, 
@@ -140,9 +91,7 @@ def get_track_match_candidates(track, crthits,
 
     # If start and end point posistions and directions are not provided, estimate them. 
     if not track_startpoint.is_valid() or not track_endpoint.is_valid():
-        track_startpoint, track_endpoint = track.get_endpoints(
-            pca_radius, min_points_in_radius, direction_method
-        )
+        track_startpoint, track_endpoint = track.get_endpoints(pca_parameters)
 
     # Loop all CRTHits and determine which are considered match candidates.
     # TODO I think we'll need to factorize the matching method for more than just DCA.
@@ -150,7 +99,7 @@ def get_track_match_candidates(track, crthits,
         closest_track_point = get_closest_track_point(crt_hit, track_startpoint, track_endpoint)
         if closest_track_point.tpc_region.name not in ['EE', 'EW', 'WE', 'WW']: continue
         dca = calculate_distance_of_closest_approach(
-            closest_track_point, crt_hit, dca_method, trigger_timestamp, isdata
+            closest_track_point, crt_hit, dca_parameters
         )
         if dca > approach_distance_threshold: continue
         match_candidate = MatchCandidate(track, crt_hit, dca)
