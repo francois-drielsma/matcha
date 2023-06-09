@@ -1,12 +1,8 @@
 from .track import Track
 from .track_point import TrackPoint
 from .crthit import CRTHit
-import matcha.defaults as defaults
 import numpy as np
 
-#def calculate_distance_of_closest_approach(track_point, crt_hit, dca_method, 
-#                                           trigger_timestamp = defaults.DEFAULT_TRIGGER_TIMESTAMP,
-#                                           isdata            = defaults.DEFAULT_ISDATA):
 def calculate_distance_of_closest_approach(track_point, crt_hit, dca_params):
     """
     Calculate distance of closest approach between a CRTHit and a line segment

@@ -1,5 +1,3 @@
-import matcha.defaults as defaults
-
 class CRTHit:
     """
     Class for storing CRT hit information
@@ -147,9 +145,7 @@ class CRTHit:
     def tagger(self, value):
         self._tagger = value
 
-    def get_time_in_microseconds(self, 
-                                 trigger_timestamp = defaults.DEFAULT_TRIGGER_TIMESTAMP,
-                                 isdata            = defaults.DEFAULT_ISDATA):
+    def get_time_in_microseconds(self, trigger_timestamp=None, isdata=False):
         """
 		This method is a Python port of the GetCRTTime function in the CRTUtils of icaruscode.
 

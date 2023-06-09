@@ -2,7 +2,6 @@ import numpy as np
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
 from .track_point import TrackPoint
-import matcha.defaults as defaults
 
 # TODO list:
 #   - What does "rescaled ADC units mean? (from Particle class)
