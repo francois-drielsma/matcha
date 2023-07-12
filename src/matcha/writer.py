@@ -157,8 +157,28 @@ def write_to_file(tracks, crthits, match_candidates=[], file_save_config=DEFAULT
         This function does not return any value.
     """
     save_to_file = file_save_config['save_to_file']
+    if not save_to_file:
+        print('WARNING save_to_file parameter from file_save_config is set to False. Exiting without saving')
+        return
+
     file_path = file_save_config['save_file_path']
     file_format = file_save_config['save_file_format']
+
+    if file_format == 'pkl':
+        file_name = file_path+'/matcha_output.pkl'
+        data = {
+            'tracks': tracks,
+            'crthits': crthits,
+            'match_candidates': match_candidates
+        }
+        with open(file_name, 'wb') as file:
+            #pickle.dump(tracks, file)
+            #pickle.dump(crthits, file)
+            #pickle.dump(match_candidates, file)
+            pickle.dump(data, file)
+
+        print('matcha output saved to', file_name)
+        return
 
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
