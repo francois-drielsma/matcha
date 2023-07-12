@@ -49,13 +49,11 @@ def get_track_crthit_matches(tracks, crthits, config_path=DEFAULT_CONFIG_PATH):
 
     if len(best_matches) == 0:
         print('No matches found for this event. Returning default MatchCandidate.')
-        default_track = Track(id=-1, image_id=-1, interaction_id=-1,
-                              points=[], depositions=[])
-        default_crthit = CRTHit(id=-1, t0_sec=-1, t0_ns=-1, t1_ns=-1,
-                                position_x=-999, position_y=-999, position_z=-999)
+        default_track_id = -1
+        default_crthit_id = -1
         default_dca = -999
         # Return a list for iterability 
-        return [MatchCandidate(default_track, default_crthit, default_dca)]
+        return [MatchCandidate(default_track_id, default_crthit_id, default_dca)]
 
     file_save_config = config['file_save_config']
     save_to_file     = file_save_config['save_to_file']
@@ -107,7 +105,7 @@ def get_track_match_candidates(track, crthits, config):
             closest_track_point, crt_hit, dca_parameters
         )
         if dca > approach_distance_threshold: continue
-        match_candidate = MatchCandidate(track, crt_hit, dca)
+        match_candidate = MatchCandidate(track.id, crt_hit.id, dca)
         match_candidates.append(match_candidate)
 
     return match_candidates
