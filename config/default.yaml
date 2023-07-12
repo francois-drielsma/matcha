@@ -15,5 +15,5 @@ pca_parameters:
 file_save_config:
   save_to_file: True
   save_file_path: '/sdf/data/neutrino/amogan/matcha/'
-  save_file_format: 'pkl'
+  save_file_name: 'matcha_output.pkl'
 

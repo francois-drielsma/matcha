@@ -1,13 +1,21 @@
+import os
 import yaml
 """
-Simple module to load a yaml config file.
+Module to load and validate the yaml config file.
 """
 
 def validate_config(config):
+
     trigger_timestamp = config['dca_parameters']['trigger_timestamp']
     isdata = config['dca_parameters']['isdata']
     if trigger_timestamp is None and isdata == True:
-        raise ValueError('trigger_timestamp must be specified when running on data')
+        raise ValueError('trigger_timestamp must be specified when isdata = True')
+
+    file_save_config = config['file_save_config']
+    save_file_path = file_save_config['save_file_path']
+    if not os.path.exists(save_file_path):
+        raise ValueError('save_file_path {:s} does not exist'.format(save_file_path))
+
     return True
 
 def load_config(file_path):
