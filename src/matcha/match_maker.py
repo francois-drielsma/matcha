@@ -58,11 +58,10 @@ def get_track_crthit_matches(tracks, crthits, config_path=DEFAULT_CONFIG_PATH):
         return [MatchCandidate(default_track, default_crthit, default_dca)]
 
     file_save_config = config['file_save_config']
-    #save_to_file     = file_save_config['save_to_file']
-    #save_file_path   = file_save_config['save_file_path']
-    #save_file_format = file_save_config['save_file_format'] # TODO Implement new file formats (pkl)
-    #if save_to_file: write_to_file(tracks, crthits, best_matches, file_save_config) 
-    write_to_file(tracks, crthits, best_matches, file_save_config) 
+    save_to_file     = file_save_config['save_to_file']
+    save_file_path   = file_save_config['save_file_path']
+    save_file_name   = file_save_config['save_file_name']
+    write_to_file(tracks, crthits, match_candidates=best_matches, file_path=save_file_path, file_name=save_file_name)
 
     return best_matches
 

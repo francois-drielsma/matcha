@@ -8,7 +8,7 @@ import pickle
 
 MATCHA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #DEFAULT_SAVE_CONFIG_PATH = "{:s}/config/default_file_save_config.yaml".format(MATCHA_DIR)
-DEFAULT_SAVE_CONFIG = {'save_to_file': False, 'save_file_path': './', 'save_file_format': 'npy'}
+DEFAULT_SAVE_CONFIG = {'save_to_file': False, 'save_file_path': './'}
 
 def write_tracks_to_file(tracks, file_path='.', file_format='npy'):
     """
@@ -141,55 +141,41 @@ def write_match_candidates_to_file(match_candidates=[], file_path='.', file_form
     np.save(file_path+'/match_candidates.npy', data, allow_pickle=True)
     print('MatchCandidate data saved to', file_path+'/match_candidates.npy')
 
-#def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
-def write_to_file(tracks, crthits, match_candidates=[], file_save_config=DEFAULT_SAVE_CONFIG):
+#def write_to_file(tracks, crthits, match_candidates=[], file_save_config=DEFAULT_SAVE_CONFIG):
+def write_to_file(tracks, crthits, match_candidates=[], file_path='./', file_name='matcha_output.pkl'):
     """
-    Write tracks, CRT hits, and match candidates to separate NumPy files.
+    Write tracks, CRT hits, and match candidates to a single pickle file.
 
     Parameters:
         tracks (list): List of tracks to be written to a file.
         crthits (list): List of CRT hits to be written to a file.
         match_candidates (list, optional): List of match candidates. Default: empty list.
-        file_path (str, optional): Path to the directory where the files will be written. 
-                                   Default: current directory.
+        file_save_config (dict, optional): Configuration dictionary for file save parameters. 
+                                           Should contain save_to_file and file_path fields.
+                                           Default: DEFAULT_SAVE_CONFIG = {
+                                                'save_to_file': False,
+                                                'save_file_path': './',
+                                           }
 
     Returns: None
         This function does not return any value.
     """
-    save_to_file = file_save_config['save_to_file']
-    if not save_to_file:
-        print('WARNING save_to_file parameter from file_save_config is set to False. Exiting without saving')
-        return
-
-    file_path = file_save_config['save_file_path']
-    file_format = file_save_config['save_file_format']
-
-    if file_format == 'pkl':
-        file_name = file_path+'/matcha_output.pkl'
-        data = {
-            'tracks': tracks,
-            'crthits': crthits,
-            'match_candidates': match_candidates
-        }
-        with open(file_name, 'wb') as file:
-            #pickle.dump(tracks, file)
-            #pickle.dump(crthits, file)
-            #pickle.dump(match_candidates, file)
-            pickle.dump(data, file)
-
-        print('matcha output saved to', file_name)
-        return
-
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
         file_path = ''
 
-    if save_to_file:
-        write_tracks_to_file(tracks, file_path, file_format)
-        write_crthits_to_file(crthits, file_path, file_format)
-        write_match_candidates_to_file(match_candidates, file_path, file_format)
-    else:
-        print('WARNING save_to_file parameter from file_save_config is set to False. Exiting without saving')
+    file_name = file_path + '/' + file_name
+    output_data = {
+        'tracks': tracks,
+        'crthits': crthits,
+        'match_candidates': match_candidates
+    }
+    with open(file_name, 'wb') as file:
+        pickle.dump(output_data, file)
+
+    print('matcha output saved to', file_name)
+
+
 
 
 
