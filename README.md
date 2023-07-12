@@ -107,29 +107,53 @@ The _optional_ Track attributes correspond to track start and end point position
 ## `MatchCandidate` Class
 
 When a match between a `Track` and `CRTHit` is found, the matched instances are stored in a `MatchCandidate` class instance. The attributes of this class are
-- `track`: the matched `Track` instance.
-- `crthit`: the matched `CRTHit` instance.
-- `distance_of_closest_approach`: calculated DCA between the matched `Track` and `CRTHit`. 
+- `track_id`: `id` of the matched `Track` instance.
+- `crthit_id`: `id` of the matched `CRTHit` instance.
+- `distance_of_closest_approach`: calculated DCA between the matched `Track` and `CRTHit`.
+
+## yaml Configuration
+
+In addition to lists of `Track` and `CRTHit` instances, the match-making algorithm takes as input a yaml congiruation file containing tuneable parameters. The default configuration can be found in `/path/to/matcha/config/default.yaml`:
+
+```
+match_making_parameters:
+  matching_method: 'dca'
+
+dca_parameters:
+  threshold: 50
+  method: 'simple'
+  trigger_timestamp: None
+  isdata: False
+  
+pca_parameters:
+  radius: 10
+  min_points_in_radius: 10
+  direction_method: 'pca'
+
+file_save_config:
+  save_to_file: True
+  save_file_path: '/sdf/data/neutrino/amogan/matcha/'
+  save_file_name: 'matcha_output.pkl'
+```
+
+The default matching method is `dca` (distance of closest approach). `dca_parameters` contains fields that specify 
+
+- a distance `threshold` in centimeters,
+- a `simple` method (currently the only method),
+- a `trigger_timestamp` (only necessary when running on data), and
+- an `isdata` boolean flag. Note that this must be `True` if `trigger_timestamp` is not `None`. 
+
+Note that the `pca_parameters` specifies fields for PCA estimation of `Track` start and end point position and direction estimation if and only if that information is not present in the `Track` instances. Finally, the `file_save_config` block specifies where to store the match-making output. 
 
 ## Running the Match-Making Algorithm
 
 Once you have a list of `Track`s and `CRTHit`s, the match making can be run as
 ```
 from matcha import match_maker
-track_crthit_matches = match_maker.get_track_crthit_matches(tracks, crthits)
+track_crthit_matches = match_maker.get_track_crthit_matches(tracks, crthits, config_path)
 ```
 
-This returns a list of `MatchCandidate` instances. While each track end point can in principle have multiple match candidates, this function only returns the "best" match, i.e., the one with the minimum DCA for that `Track`. This means that the list `track_crthit_matches` will contain at most one `MatchCandidate` per `Track`. 
-
-To tune the match making algorithm, you can pass any of the following optional parameters:
-- `approach_distance_threshold`: Minimum DCA (in cm) required for a `MatchCandidate` instance to be created. Default value is 50.
-- `dca_method`: Method of calculating DCA to use. Default value is `'simple'`. See `dca_methods.py` for other methods.
-- `pca_radius`: If using PCA to determine track start and end points, the radius (in number of track points) to consider about each end. Default value is 10.
-- `min_points_in_radius`: Minimum number of points within the PCA radius for PCA to be performed. Default value is 10. 
-- `trigger_timestamp`: Timestamp value for the event trigger. Used for shifting CRT hit time values when running on data (i.e., requires `isdata=True`). Default value is `None`.
-- `isdata`: Boolean flag indicating whether the input values are from simulation or from real data. Default value is `False`. Must be set to `True` if you supply a `trigger_timestamp` value. 
-- `save_to_file`: Boolean flag indicating whether the output will be saved to a numpy `.npy` file. These files can be loaded into the `visualizer.ipynb` notebook. Default value is `False`.
-- `file_path`: Path in which to save the `.npy` file. Default value is `'.'` (current directory). 
+`config_path` should point to a valid yaml configuration file. By default, this points to `path/to/matcha/config/default.yaml`, which can also be used as an example of a valid configuration. The match-making algorithm returns a list of `MatchCandidate` instances. While each track end point can in principle have multiple match candidates, this function only returns the "best" match, i.e., the one with the minimum DCA for that `Track`. This means that the list `track_crthit_matches` will contain at most one `MatchCandidate` per `Track`. However, a single `CRTHit` may be matched to more than one `Track`.
 
 # Contributing
 
