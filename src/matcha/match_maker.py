@@ -5,17 +5,15 @@ from .crthit import CRTHit
 from .match_candidate import MatchCandidate
 from .writer import write_to_file
 from .dca_methods import calculate_distance_of_closest_approach, simple_dca
-#import matcha.defaults as defaults
 from matcha.loader import load_config
 import numpy as np
 
 # Set project root directory two directories up
 MATCHA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_CONFIG_PATH = "{:s}/config/default.yaml".format(MATCHA_DIR)
-DEFAULT_SAVE_CONFIG_PATH = "{:s}/config/default_file_save_config.yaml".format(MATCHA_DIR)
 
 """
-Main functions for performing CRT-TPC matching
+Main functions for performing CRT-TPC matching.
 """
 
 def get_track_crthit_matches(tracks, crthits, config_path=DEFAULT_CONFIG_PATH):
