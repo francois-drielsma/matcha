@@ -4,8 +4,13 @@ from .track_point import TrackPoint
 from .crthit import CRTHit
 from .match_candidate import MatchCandidate
 import numpy as np
+import pickle
 
-def write_tracks_to_file(tracks, file_path='.'):
+MATCHA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#DEFAULT_SAVE_CONFIG_PATH = "{:s}/config/default_file_save_config.yaml".format(MATCHA_DIR)
+DEFAULT_SAVE_CONFIG = {'save_to_file': False, 'save_file_path': './', 'save_file_format': 'npy'}
+
+def write_tracks_to_file(tracks, file_path='.', file_format='npy'):
     """
     Write a list of Track instances to a NumPy file.
 
@@ -17,38 +22,49 @@ def write_tracks_to_file(tracks, file_path='.'):
     Returns:
         None.
     """
-    data = {
-        'id': [],
-        'image_id': [],
-        'interaction_id': [],
-        'start_x': [],
-        'start_y': [],
-        'start_z': [],
-        'end_x': [],
-        'end_y': [],
-        'end_z': [],
-        'points': [],
-        'depositions': []
-    }
+    file_name = 'tracks'
+    if file_format == 'npy':
+        data = {
+            'id': [],
+            'image_id': [],
+            'interaction_id': [],
+            'start_x': [],
+            'start_y': [],
+            'start_z': [],
+            'end_x': [],
+            'end_y': [],
+            'end_z': [],
+            'points': [],
+            'depositions': []
+        }
 
-    # Convert track objects to dictionary of lists
-    for track in tracks:
-        data['id'].append(track.id)
-        data['image_id'].append(track.image_id)
-        data['interaction_id'].append(track.interaction_id)
-        data['start_x'].append(track.start_x)
-        data['start_y'].append(track.start_y)
-        data['start_z'].append(track.start_z)
-        data['end_x'].append(track.end_x)
-        data['end_y'].append(track.end_y)
-        data['end_z'].append(track.end_z)
-        data['points'].append(track.points)
-        data['depositions'].append(track.depositions)
-    
-    np.save(file_path+'/tracks.npy', data, allow_pickle=True)
-    print('Track data saved to', file_path+'/tracks.npy')
+        # Convert track objects to dictionary of lists
+        for track in tracks:
+            data['id'].append(track.id)
+            data['image_id'].append(track.image_id)
+            data['interaction_id'].append(track.interaction_id)
+            data['start_x'].append(track.start_x)
+            data['start_y'].append(track.start_y)
+            data['start_z'].append(track.start_z)
+            data['end_x'].append(track.end_x)
+            data['end_y'].append(track.end_y)
+            data['end_z'].append(track.end_z)
+            data['points'].append(track.points)
+            data['depositions'].append(track.depositions)
+        
+        file_name = file_path+'/tracks.npy'
+        #np.save(file_path+'/tracks.npy', data, allow_pickle=True)
+        np.save(file_name, data, allow_pickle=True)
 
-def write_crthits_to_file(crthits, file_path='.'):
+    elif file_format == 'pkl':
+        file_name = file_path+'/tracks.pkl'
+        with open(file_name, 'wb') as file:
+            pickle.dump(tracks, file)
+
+    #print('Track data saved to', file_path+'/tracks.npy')
+    print('Track data saved to', file_name)
+
+def write_crthits_to_file(crthits, file_path='.', file_format='npy'):
     """
     Write a list of CRTHit instances to a NumPy file.
 
@@ -94,7 +110,7 @@ def write_crthits_to_file(crthits, file_path='.'):
     np.save(file_path+'/crthits.npy', data, allow_pickle=True)
     print('CRTHit data saved to', file_path+'/crthits.npy')
 
-def write_match_candidates_to_file(match_candidates=[], file_path='.'):
+def write_match_candidates_to_file(match_candidates=[], file_path='.', file_format='npy'):
     """
     Write a list of MatchCandidate instances to a NumPy file. If the 
     MatchCandidates list is empty, no file is saved.
@@ -125,7 +141,8 @@ def write_match_candidates_to_file(match_candidates=[], file_path='.'):
     np.save(file_path+'/match_candidates.npy', data, allow_pickle=True)
     print('MatchCandidate data saved to', file_path+'/match_candidates.npy')
 
-def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
+#def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
+def write_to_file(tracks, crthits, match_candidates=[], file_save_config=DEFAULT_SAVE_CONFIG):
     """
     Write tracks, CRT hits, and match candidates to separate NumPy files.
 
@@ -139,12 +156,20 @@ def write_to_file(tracks, crthits, match_candidates=[], file_path='.'):
     Returns: None
         This function does not return any value.
     """
+    save_to_file = file_save_config['save_to_file']
+    file_path = file_save_config['save_file_path']
+    file_format = file_save_config['save_file_format']
+
     if not os.path.exists(file_path):
         print('WARNING Output file path', file_path, 'does not exist. Defaulting to current directory')
         file_path = ''
-    write_tracks_to_file(tracks, file_path)
-    write_crthits_to_file(crthits, file_path)
-    write_match_candidates_to_file(match_candidates, file_path)
+
+    if save_to_file:
+        write_tracks_to_file(tracks, file_path, file_format)
+        write_crthits_to_file(crthits, file_path, file_format)
+        write_match_candidates_to_file(match_candidates, file_path, file_format)
+    else:
+        print('WARNING save_to_file parameter from file_save_config is set to False. Exiting without saving')
 
 
 
