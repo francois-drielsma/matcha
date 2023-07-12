@@ -18,10 +18,6 @@ class MatchCandidate:
         None
     """
     def __init__(self, track_id, crthit_id, distance_of_closest_approach):
-        if not isinstance(track, Track):
-            raise TypeError('track parameter must be an instance of matcha.Track')
-        if not isinstance(crthit, CRTHit):
-            raise TypeError('crthit parameter must be an instance of matcha.CRTHit')
         self._track_id  = track_id
         self._crthit_id = crthit_id
         self._distance_of_closest_approach = distance_of_closest_approach
